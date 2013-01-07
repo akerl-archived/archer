@@ -18,11 +18,14 @@
     - name : install python modules
       action: pip name=$item state=latest
       with_items: $modules
-    - name: update packages
+    - name: upgrade packages
       action: pacman update=yes
     - name: install packages
       action: pacman name=$item
-      with_items: $packages
+      with_items: $wantedPackages
+    - name: remove packages
+      action: pacman name=$item state=absent
+      with_items: $unwantedPackages
     - name: testing
       action: ping
 ...

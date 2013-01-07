@@ -43,21 +43,25 @@ author: akerl (based on Afterburn's pacman module)
 
 import sh
 
-def check_package_state(package):
+def check_package_state(module, package):
   try:
-    sh.pacman('-Q', package)
+    packages = sh.pacman('-Ssq', '^{0}$'.format(package)).stdout.split()
   except sh.ErrorReturnCode:
-    return False
-  else:
-    return True
+    module.fail_json(msg='could not find package/group {0}'.format(package))
+  for package in packages:
+    try:
+      sh.pacman('-Qq', package)
+    except sh.ErrorReturnCode:
+      return False
+  return True
 
 def modify_package(module, package, flags = '-S', presence = True):
-  if presence == check_package_state(package):
+  if presence == check_package_state(module, package):
     module.exit_json(changed=False, msg='no change required for {0}'.format(package))
   try:
     sh.pacman(flags, '--noconfirm', package)
   except sh.ErrorReturnCode:
-    module.fail_json('failed to modify {0}'.format(package))
+    module.fail_json(msg='failed to modify {0}'.format(package))
   else:
     module.exit_json(changed=True, msg='successfully modified {0}'.format(package))
 
@@ -85,7 +89,7 @@ def update(module):
 def main():
   module = AnsibleModule(
             argument_spec = dict(
-              state         = dict(default='installed', choices=['installed', 'absent']),
+              state         = dict(default='present', choices=['present', 'absent']),
               update        = dict(default='no', choices=['yes', 'no']),
               name          = dict(default='')
             )
@@ -97,7 +101,7 @@ def main():
 
   if module.params['name'] == '':
     upgrade_system(module)
-  elif module.params['state'] == 'installed':
+  elif module.params['state'] == 'present':
     modify_package(module, module.params['name'], flags = '-S', presence = True)
   elif module.params['state'] == 'absent':
     modify_package(module, module.params['name'], flags = '-R', presence = False)

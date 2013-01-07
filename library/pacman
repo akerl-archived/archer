@@ -1,0 +1,109 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# (c) 2013, akerl
+# Written by akerl
+# Based on pacman module written by Afterburn <http://github.com/afterburn> 
+# Which was based on apt module written by Matthew Williams <matthew@flowroute.com>
+#
+# This module is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This software is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this software.  If not, see <http://www.gnu.org/licenses/>.
+
+DOCUMENTATION = '''
+---
+module: pacman
+short_description: Package management module for Arch
+description:
+  - Manages package updates/additions/removals on Arch systems
+options:
+  name:
+    description:
+      - name of the package to modify, or blank to upgrade all
+    required: false
+  state:
+    description:
+      - 'installed' or 'absent', to specify the desired package's state
+    required: false
+  update:
+    description:
+      - boolean to control whether to update the package db before operating
+    required: false
+author: akerl (based on Afterburn's pacman module)
+'''
+
+import sh
+
+def check_package_state(package):
+  try:
+    sh.pacman('-Q', package)
+  except sh.ErrorReturnCode:
+    return False
+  else:
+    return True
+
+def modify_package(module, package, flags = '-S', presence = True):
+  if presence == check_package_state(package):
+    module.exit_json(changed=False, msg='no change required for {0}'.format(package))
+  try:
+    sh.pacman(flags, '--noconfirm', package)
+  except sh.ErrorReturnCode:
+    module.fail_json('failed to modify {0}'.format(package))
+  else:
+    module.exit_json(changed=True, msg='successfully modified {0}'.format(package))
+
+def upgrade_system(module):
+  try:
+    results = [ x for x in sh.pacman('-Sup', "--print-format=----- %l").stdout.split('\n') if x.find('-----') == 0 ] 
+  except sh.ErrorReturnCode:
+    module.fail_json(msg="failed to upgrade system")
+  if not len(results):
+    module.exit_json(changed=False, msg="no upgrades required")
+  else:
+    try:
+      sh.pacman('-Su','--noconfirm')
+    except sh.ErrorReturnCode:
+      module.fail_json(msg="failed to upgrade packages")
+    else:
+      module.exit_json(changed=True, msg='all packages upgraded')
+
+def update(module):
+  try:
+    sh.pacman('-Syy')
+  except sh.ErrorReturnCode:
+    module.fail_json(msg='could not update package db')
+
+def main():
+  module = AnsibleModule(
+            argument_spec = dict(
+              state         = dict(default='installed', choices=['installed', 'absent']),
+              update        = dict(default='no', choices=['yes', 'no']),
+              name          = dict(default='')
+            )
+          )
+  pacman = module.get_bin_path('pacman', True, [])
+  
+  if module.boolean(module.params['update']):
+    update(module)
+
+  if module.params['name'] == '':
+    upgrade_system(module)
+  elif module.params['state'] == 'installed':
+    modify_package(module, module.params['name'], flags = '-S', presence = True)
+  elif module.params['state'] == 'absent':
+    modify_package(module, module.params['name'], flags = '-R', presence = False)
+
+# this is magic, see lib/ansible/module_common.py
+#<<INCLUDE_ANSIBLE_MODULE_COMMON>>
+
+main()
+

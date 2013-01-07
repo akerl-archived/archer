@@ -1,0 +1,29 @@
+---
+- hosts: cluster
+  user: root
+  gather_facts: no
+  tasks:
+    - name: initialize pacman keyring
+      action: script scripts/pacmankeygen.sh
+    - name: update pacman
+      action: raw pacman -Sy --noconfirm --needed pacman
+    - name: install python
+      action: raw pacman -S --noconfirm --needed python2 python2-pip
+- hosts: cluster
+  user: root
+  vars_files:
+    - resources/packages.yml
+    - resources/modules.yml
+  tasks:
+    - name : install python modules
+      action: pip name=$item state=latest
+      with_items: $modules
+    - name: update packages
+      action: pacman update=yes
+    - name: install packages
+      action: pacman name=$item
+      with_items: $packages
+    - name: testing
+      action: ping
+...
+

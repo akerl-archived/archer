@@ -1,0 +1,5 @@
+127.0.0.1 localhost.localdomain localhost
+::1 localhost.localdomain localhost
+
+{{ ansible_eth0["ipv4"]["address"] }} {{ inventory_hostname }}.{{ domain }} {{ inventory_hostname }}
+

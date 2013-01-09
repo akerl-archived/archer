@@ -14,6 +14,7 @@ wantedPackages:
 - gpgme
 - grep
 - gzip
+- haveged
 - heirloom-mailx
 - htop
 - inetutils
@@ -61,4 +62,12 @@ wantedPackages:
 - zsh
 unwantedPackages:
 - fish
+- zip
+- unzip
+- linux
+- linux-firmware
+- grub-common
+- grub-bios
+- freetype2
+- fuse
 ...

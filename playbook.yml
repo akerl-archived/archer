@@ -1,32 +1,31 @@
 ---
-- hosts: cluster
+- hosts: all
   user: root
   gather_facts: no
   tasks:
-    - name: initialize pacman keyring
-      action: script scripts/pacmankeygen.sh
-    - name: update pacman
-      action: raw pacman -Sy --noconfirm --needed pacman
-    - name: install python
-      action: raw pacman -S --noconfirm --needed python2 python2-pip
-- hosts: cluster
+    - script: scripts/pacmankeygen.sh
+    - raw: pacman -Sy --noconfirm --needed pacman
+    - raw: pacman -S --noconfirm --needed python2 python2-pip
+- hosts: all
   user: root
   vars_files:
+    - resources/common.yml
     - resources/packages.yml
     - resources/modules.yml
+    - resources/repos.yml
   tasks:
-    - name : install python modules
-      action: pip name=$item state=latest
+    - pip: name=$item state=latest
       with_items: $modules
-    - name: upgrade packages
-      action: pacman update=yes
-    - name: install packages
-      action: pacman name=$item
+    - pacman: update=yes
+    - pacman: name=$item
       with_items: $wantedPackages
-    - name: remove packages
-      action: pacman name=$item state=absent
+    - pacman: name=$item state=absent
       with_items: $unwantedPackages
-    - name: testing
-      action: ping
+    - template: src=templates/hostname.j2 dest=/etc/hostname owner=root group=root mode=0644
+    - template: src=templates/hosts.j2 dest=/etc/hosts owner=root group=root mode=0644
+    - raw: hostname -F /etc/hostname
+      tags:
+        - test
+    - action: ping
 ...
 

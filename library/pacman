@@ -45,8 +45,10 @@ import sh
 
 def check_package_state(module, package):
   try:
-    packages = sh.pacman('-Ssq', '^{0}$'.format(package)).stdout.split()
+    packages = [ x.split()[-1] for x in sh.pacman('-Si',package).split('\n') if x.find('Name') == 0 ]
   except sh.ErrorReturnCode:
+    packages = sh.pacman('-Sqg',package).split()
+  if not len(packages):
     module.fail_json(msg='could not find package/group {0}'.format(package))
   for package in packages:
     try:
@@ -104,7 +106,7 @@ def main():
   elif module.params['state'] == 'present':
     modify_package(module, module.params['name'], flags = '-S', presence = True)
   elif module.params['state'] == 'absent':
-    modify_package(module, module.params['name'], flags = '-R', presence = False)
+    modify_package(module, module.params['name'], flags = '-Rc', presence = False)
 
 # this is magic, see lib/ansible/module_common.py
 #<<INCLUDE_ANSIBLE_MODULE_COMMON>>

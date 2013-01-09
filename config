@@ -1,0 +1,4 @@
+[defaults]
+ask_pass=True
+remote_user=root
+

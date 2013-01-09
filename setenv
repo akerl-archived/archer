@@ -1,7 +1,5 @@
-#!/usr/bin/env bash
-
-SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
+SCRIPTPATH=$( builtin cd $(dirname $0) ; pwd -P )
 
 export ANSIBLE_LIBRARY="$SCRIPTPATH/library"
 export ANSIBLE_HOSTS="$SCRIPTPATH/hosts"
-
+export ANSIBLE_CONFIG="$SCRIPTPATH/config"

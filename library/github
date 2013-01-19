@@ -1,0 +1,60 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# (c) 2013, akerl
+
+import requests
+import json
+
+def main():
+  module = AnsibleModule(
+            argument_spec = dict(
+              source        = dict(default='~/.ssh/id_rsa.pub'),
+              username      = dict(required=True),
+              password      = dict(required=True)
+            )
+          )
+
+  creds = ( module.params['username'], module.params['password'] )
+
+  try:
+    requests.get('https://api.github.com', auth=creds).raise_for_status()
+  except:
+    module.fail_json(msg='creds not accepted')
+
+  with open(os.path.expanduser(module.params['source'])) as handle:
+    contents = handle.readlines()[0].rsplit(None, 1)
+    key = contents[0]
+    title = contents[1]
+    newKey = json.dumps({ 'title' : title, 'key' : key})
+
+  try:
+    keyRequest = requests.get('https://api.github.com/user/keys', auth=creds)
+    keyRequest.raise_for_status()
+    currentKeys = keyRequest.json()
+  except:
+    module.fail_json(msg='failed to get current github keys')
+
+  for thisKey in currentKeys:
+    if thisKey['title'] == title:
+      if thisKey['key'] != key:
+        try:
+          requests.patch('https://api.github.com/user/keys/{0}'.format(thisKey['id']), auth=creds, data=newKey).raise_for_status()
+        except:
+          module.fail_json(msg='failed to patch old key')
+        module.exit_json(changed=True, msg='updated old key')
+      else:
+        module.exit_json(changed=False, msg='key already on github')
+
+  try:
+    tmp = requests.post('https://api.github.com/user/keys', auth=creds, data=newKey)
+    tmp.raise_for_status()
+  except:
+    module.fail_json(msg='failed to post new key {0}'.format(tmp.text))
+  module.exit_json(changed=True, msg='new key pushed to github')
+
+# this is magic, see lib/ansible/module_common.py
+#<<INCLUDE_ANSIBLE_MODULE_COMMON>>
+
+main()
+

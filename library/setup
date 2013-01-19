@@ -126,6 +126,12 @@ class Facts(object):
         self.facts['distribution_version'] = dist[1] or 'NA'
         self.facts['distribution_release'] = dist[2] or 'NA'
         # Try to handle the exceptions now ...
+        if os.path.exists('/etc/os-release'):
+          with open('/etc/os-release') as handle:
+            for line in handle:
+              if line.find('ID=') == 0:
+                self.facts['distribution'] = line[3:]
+                break
         for (path, name) in Facts.OSDIST_DICT.items():
             if os.path.exists(path):
                 if self.facts['distribution'] == 'Fedora':

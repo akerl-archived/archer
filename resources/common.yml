@@ -1,4 +1,12 @@
 ---
 domain: a-rwx.org
+admin_user: akerl
+github_user: akerl
+files:
+  toremove:
+    - /etc/skel/.bashrc
+    - /etc/skel/.bash_logout
+    - /etc/skel/.bash_profile
+    - /etc/skel/.screenrc
 ...
 

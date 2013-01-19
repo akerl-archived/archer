@@ -1,0 +1,19 @@
+CONNECTION='ethernet'
+DESCRIPTION='main'
+INTERFACE='eth0'
+HOSTNAME='{{ inventory_hostname }}'
+IP='static'
+IPCFG=(
+{% for ip in ips[inventory_hostname]['v4addr'] %}
+'addr add dev eth0 {{ ip }} brd +'
+{% endfor %}
+'route add default via {{ ips[inventory_hostname]['v4gw'] }}'
+)
+IP6='static'
+ADDR6=(
+{% for ip in ips[inventory_hostname]['v6addr'] %}
+'{{ ip }}'
+{% endfor %}
+)
+GATEWAY6='{{ ips[inventory_hostname]['v6gw'] }}'
+

@@ -2,30 +2,107 @@
 - hosts: all
   user: root
   gather_facts: no
-  tasks:
-    - script: scripts/pacmankeygen.sh
-    - raw: pacman -Sy --noconfirm --needed pacman
-    - raw: pacman -S --noconfirm --needed python2 python2-pip
-- hosts: all
-  user: root
+  vars_prompt:
+    - name: root_pw
+      prompt: Root password
+      private: yes
+      encrypt: sha512_crypt
+    - name: user_pw
+      prompt: User password
+      private: yes
+      encrypt: sha512_crypt
+    - name: github_pw
+      prompt: Github password
+      private: yes
   vars_files:
     - resources/common.yml
     - resources/packages.yml
     - resources/modules.yml
     - resources/repos.yml
+    - resources/pacnews.yml
+    - resources/ips.yml
   tasks:
-    - pip: name=$item state=latest
-      with_items: $modules
+    - script: scripts/pacmankeygen.sh
+    - raw: pacman -Sy --noconfirm --needed pacman
+    - raw: pacman -S --noconfirm --needed python2 python2-pip
+    - action: setup
+      tags: test
+
+    - pip: name=$item state=latest pip=pip2
+      with_items: ${modules.python2}
+    - copy: src=files/mirrorlist dest=/etc/pacman.d/mirrorlist
+    - copy: src=files/pacman.conf dest=/etc/pacman.conf
     - pacman: update=yes
     - pacman: name=$item
-      with_items: $wantedPackages
+      with_items: ${packages.add}
     - pacman: name=$item state=absent
-      with_items: $unwantedPackages
-    - template: src=templates/hostname.j2 dest=/etc/hostname owner=root group=root mode=0644
-    - template: src=templates/hosts.j2 dest=/etc/hosts owner=root group=root mode=0644
-    - raw: hostname -F /etc/hostname
-      tags:
-        - test
-    - action: ping
+      with_items: ${packages.remove}
+    - pacnew: path=${item.path} new=${item.new} old=${item.old} keep=${item.keep}
+      with_items: ${pacnews}
+    - pacnew: check_all=yes
+    - pip: name=$item state=latest pip=pip3
+      with_items: ${modules.python3}
+    - raw: systemctl --system daemon-reload
+
+    - template: src=files/hostname.j2 dest=/etc/hostname
+    - template: src=files/hosts.j2 dest=/etc/hosts
+    - template: src=files/netcfg.j2 dest=/etc/network.d/main
+    - lineinfile: dest=/etc/conf.d/netcfg regexp=^NETWORKS line=NETWORKS=(main)
+    - raw: 'systemctl stop dhcpcd@eth0 ; systemctl start netcfg ; systemctl start netcfg'
+    - service: name=dhcpcd@eth0.service action=stop enabled=no
+    - service: name=netcfg.service enabled=yes
+    - copy: src=files/resolv.conf dest=/etc/resolv.conf
+    - copy: src=files/iptables dest=/etc/iptables/iptables.rules
+    - copy: src=files/ip6tables dest=/etc/iptables/ip6tables.rules
+    - service: name=iptables action=start enabled=yes
+
+    - raw: 'timedatectl set-timezone US/Eastern'
+    - lineinfile: dest=/etc/locale.gen line='en_US.UTF-8 UTF-8' regexp='#?en_US.UTF-8 UTF-8'
+    - lineinfile: dest=/etc/locale.gen line='en_US ISO-8859-1' regexp='#?en_US ISO-8859-1'
+    - raw: locale-gen
+
+    # fstab?
+    # motd/issue?
+    - file: state=absent path=$item
+      with_items: ${files.toremove}
+    - user: name=ftp state=absent remove=yes force=yes
+
+    - lineinfile: >
+        dest=/etc/mail/exim.conf 
+        regexp='^[ #]*primary_hostname =' 
+        line='primary_hostname = ${inventory_hostname}.${domain}'
+    - lineinfile: >
+        dest=/etc/mail/exim.conf 
+        insertafter='^[ #]*primary_hostname ='
+        regexp='^local_interfaces ='
+        line='local_interfaces = 127.0.0.1'
+    - lineinfile: >
+        dest=/etc/mail/exim.conf 
+        regexp='^domainlist local_domains =' 
+        line="domainlist local_domains = localhost : localhost.localdomain : ${inventory_hostname} : ${inventory_hostname}.${domain}"
+    - lineinfile: >
+        dest=/etc/mail/aliases 
+        regexp='^[\s#]*root:' 
+        line='root: admin@${domain}'
+
+    - user: >
+        name=root 
+        generate_ssh_key=yes 
+        ssh_key_bits=8096 
+        ssh_key_comment=root@${inventory_hostname}
+        shell=/bin/zsh
+    - user: >
+        name=akerl
+        generate_ssh_key=yes
+        ssh_key_bits=8096
+        ssh_key_comment=akerl@${inventory_hostname}
+        groups='wheel,remote'
+        shell=/bin/zsh
+    - github: username=${github_user} password=${github_pw}
+    - git: dest=${item.path} repo=${item.repo}
+      with_items: ${repos}
+
+    - copy: src=files/dotdotdot.conf dest='/root/.../conf'
+    - copy: src=files/dotdotdot.conf dest='/home/akerl/.../conf'
 ...
 

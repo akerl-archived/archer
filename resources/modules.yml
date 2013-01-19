@@ -1,5 +1,13 @@
 ---
 modules:
-- sh
-- requests
+  python2:
+    - sh
+    - requests
+    - pyyaml
+    - beautifulsoup4
+  python3:
+    - sh
+    - requests
+    - pyyaml
+    - beautifulsoup4
 ...

@@ -1,73 +1,73 @@
 ---
-wantedPackages:
-- base-devel
-- bzip2
-- cronie
-- curl
-- dnsutils
-- e2fsprogs
-- exim
-- file
-- findutils
-- git
-- gnupg
-- gpgme
-- grep
-- gzip
-- haveged
-- heirloom-mailx
-- htop
-- inetutils
-- iotop
-- iproute2
-- iptables
-- iputils
-- jshon
-- less
-- logrotate
-- lsof
-- man-db
-- man-pages
-- mtr
-- net-tools
-- netcfg
-- nginx
-- nmap
-- ntp
-- openssh
-- pacman
-- procps-ng
-- psmisc
-- python
-- python-pip
-- python-virtualenv
-- python2
-- python2-pip
-- python2-virtualenv
-- rsync
-- screen
-- sed
-- sqlite
-- sudo
-- systemd
-- systemd-sysvcompat
-- tar
-- tcpdump
-- tmux
-- vim
-- wget
-- which
-- whois
-- yajl
-- zsh
-unwantedPackages:
-- fish
-- zip
-- unzip
-- linux
-- linux-firmware
-- grub-common
-- grub-bios
-- freetype2
-- fuse
+packages:
+  add:
+    - base-devel
+    - bzip2
+    - cronie
+    - curl
+    - dnsutils
+    - e2fsprogs
+    - exim
+    - file
+    - findutils
+    - git
+    - gnupg
+    - gpgme
+    - grep
+    - gzip
+    - haveged
+    - heirloom-mailx
+    - htop
+    - inetutils
+    - iotop
+    - iproute2
+    - iptables
+    - iputils
+    - jshon
+    - less
+    - logrotate
+    - lsof
+    - man-db
+    - man-pages
+    - mtr
+    - net-tools
+    - netcfg
+    - nginx
+    - nmap
+    - ntp
+    - openssh
+    - pacman
+    - procps-ng
+    - psmisc
+    - python
+    - python-pip
+    - python-virtualenv
+    - python2
+    - python2-pip
+    - python2-virtualenv
+    - rsync
+    - screen
+    - sed
+    - sqlite
+    - sudo
+    - systemd
+    - systemd-sysvcompat
+    - tar
+    - tcpdump
+    - tmux
+    - vim
+    - wget
+    - which
+    - whois
+    - yajl
+    - zsh
+  remove:
+    - zip
+    - unzip
+    - linux
+    - linux-firmware
+    - grub-common
+    - grub-bios
+    - freetype2
+    - fuse
 ...

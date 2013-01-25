@@ -54,6 +54,7 @@ packages:
     - strace
     - systemd
     - systemd-sysvcompat
+    - syslog-ng
     - tar
     - tcpdump
     - tmux

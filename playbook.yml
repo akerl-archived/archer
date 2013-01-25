@@ -55,6 +55,7 @@
     - copy: src=files/iptables dest=/etc/iptables/iptables.rules
     - copy: src=files/ip6tables dest=/etc/iptables/ip6tables.rules
     - service: name=iptables action=start enabled=yes
+    - service: name=ip6tables action=start enabled=yes
 
     - raw: 'timedatectl set-timezone US/Eastern'
     - lineinfile: dest=/etc/locale.gen line='en_US.UTF-8 UTF-8' regexp='#?en_US.UTF-8 UTF-8'
@@ -64,6 +65,8 @@
     # fstab?
     # motd/issue?
     - service: name=haveged.service action=start enabled=yes
+    - service: name=syslog-ng.service action=start enabled=yes
+    - service: name=cronie.service action=start enabled=yes
     - file: state=absent path=$item
       with_items: ${files.toremove}
     - user: name=ftp state=absent remove=yes force=yes
@@ -85,6 +88,7 @@
         dest=/etc/mail/aliases 
         regexp='^[\s#]*root:' 
         line='root: admin@${domain}'
+    - service: name=exim.service action=start enabled=yes
 
     - group: name=remote
     - user: >
@@ -154,7 +158,6 @@
 
     - tokengen: length=32
       register: gpg
-      tags: test
     - gpgkey: >
         passphrase=${gpg.token}
         length=2048
@@ -163,6 +166,7 @@
         comment=${inventory_hostname} 
         email=admin@${inventory_hostname}.${domain}
         replaceOld=yes
-      tags: test
+
+    - service: name=fwknopd.service action=start enabled=yes
 ...
 

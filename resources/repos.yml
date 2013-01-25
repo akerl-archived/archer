@@ -12,20 +12,17 @@ repos:
   - name: gauth
     repo: 'git@github.com:akerl/google-authenticator.git'
     path: /opt/google-authenticator
-  - name: fwknop
-    repo: 'git@github.com:akerl/fwknop.git'
-    path: /opt/fwknop
   - name: env
     repo: 'git@github.com:akerl/env.git'
     path: /opt/env
   - name: keys
     repo: 'git@github.com:akerl/keys.git'
     path: /opt/keys 
-  - name: dotdotdot-root
+  - name: dotdotdot
     repo: 'git://github.com/ingydotnet/....git'
-    path: '/root/...'
-  - name: dotdotdot-priv
-    repo: 'git://github.com/ingydotnet/....git'
-    path: '/home/akerl/...'
+    path: /opt/dotdotdot
+  - name: uwsgi
+    repo: 'git://github.com/unbit/uwsgi.git'
+    path: /opt/uwsgi
 ...
 

@@ -96,27 +96,22 @@ def _get_full_name(name, version=None):
     return resp
 
 
-def _get_pip(module, env, pip):
+def _get_pip(module, env, pip_name):
     # On Debian and Ubuntu, pip is pip.
     # On Fedora18 and up, pip is python-pip.
     # On Fedora17 and below, CentOS and RedHat 6 and 5, pip is pip-python.
     # On Fedora, CentOS, and RedHat, the exception is in the virtualenv.
     # There, pip is just pip.
     # Try pip with the virtualenv directory first.
-    pip = module.get_bin_path(pip, False, ['%s/bin' % env])
+    pip = module.get_bin_path(pip_name, False, ['%s/bin' % env])
+    for p in ['python-pip', 'pip-python']:
+        if not pip:
+            pip = module.get_bin_path(p, False, ['%s/bin' % env])
     # pip should have been found by now.  The final call to get_bin_path
     # will trigger fail_json.
     if not pip:
         pip = module.get_bin_path('pip', True, ['%s/bin' % env])
     return pip
-
-
-def _run(cmd):
-    # returns (rc, stdout, stderr) from shell command
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE, shell=True)
-    stdout, stderr = process.communicate()
-    return (process.returncode, stdout, stderr)
 
 
 def _fail(module, cmd, out, err):
@@ -126,6 +121,47 @@ def _fail(module, cmd, out, err):
     if err:
         msg += "\n:stderr: %s" % (err, )
     module.fail_json(cmd=cmd, msg=msg)
+
+
+def run_command(self, args, check_rc=False, close_fds=False, executable=None):
+  '''
+  Execute a command, returns rc, stdout, and stderr.
+  args is the command to run
+  If args is a list, the command will be run with shell=False.
+  Otherwise, the command will be run with shell=True when args is a string.
+  Other arguments:
+  - check_rc (boolean)  Whether to call fail_json in case of
+    non zero RC.  Default is False.
+  - close_fds (boolean) See documentation for subprocess.Popen().
+    Default is False.
+  - executable (string) See documentation for subprocess.Popen().
+    Default is None.
+  '''
+  if isinstance(args, list):
+    shell = False
+  elif isinstance(args, basestring):
+    shell = True
+  else:
+    msg = "Argument 'args' to run_command must be list or string"
+    self.fail_json(rc=257, cmd=args, msg=msg)
+  rc = 0
+  msg = None
+  try:
+    cmd = subprocess.Popen(args,
+            executable=executable,
+            shell=shell,
+            close_fds=close_fds,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = cmd.communicate()
+    rc = cmd.returncode
+  except (OSError, IOError), e:
+    self.fail_json(rc=e.errno, msg=str(e), cmd=args)
+  except:
+    self.fail_json(rc=257, msg=traceback.format_exc(), cmd=args)
+  if rc != 0 and check_rc:
+    msg = err.rstrip()
+    self.fail_json(cmd=args, rc=rc, stdout=out, stderr=err, msg=msg)
+  return (rc, out, err)
 
 
 def main():
@@ -156,7 +192,7 @@ def main():
     requirements = module.params['requirements']
     use_mirrors = module.boolean(module.params['use_mirrors'])
     extra_args = module.params['extra_args']
-    pip = module.params['pip']
+    pip_name = module.params['pip']
 
     if state == 'latest' and version is not None:
         module.fail_json(msg='version is incompatible with state=latest')
@@ -172,13 +208,13 @@ def main():
         virtualenv = module.get_bin_path('virtualenv', True)
         if not os.path.exists(os.path.join(env, 'bin', 'activate')):
             cmd = '%s %s' % (virtualenv, env)
-            rc, out_venv, err_venv = _run(cmd)
+            rc, out_venv, err_venv = run_command(module, cmd)
             out += out_venv
             err += err_venv
             if rc != 0:
                 _fail(module, cmd, out, err)
 
-    pip = _get_pip(module, env, pip)
+    pip = _get_pip(module, env, pip_name)
 
     cmd = '%s %s' % (pip, state_map[state])
     if state != 'absent' and use_mirrors:
@@ -190,7 +226,7 @@ def main():
     elif requirements:
         cmd += ' -r %s' % requirements
 
-    rc, out_pip, err_pip = _run(cmd)
+    rc, out_pip, err_pip = run_command(module, cmd)
     out += out_pip
     err += err_pip
     if rc == 1 and state == 'absent' and 'not installed' in out_pip:

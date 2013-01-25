@@ -5,15 +5,15 @@
   vars_prompt:
     - name: root_pw
       prompt: Root password
-      private: yes
+      private: yes 
       encrypt: sha512_crypt
     - name: user_pw
       prompt: User password
-      private: yes
+      private: yes 
       encrypt: sha512_crypt
     - name: github_pw
       prompt: Github password
-      private: yes
+      private: yes 
   vars_files:
     - resources/common.yml
     - resources/packages.yml
@@ -63,6 +63,7 @@
 
     # fstab?
     # motd/issue?
+    - service: name=haveged.service action=start enabled=yes
     - file: state=absent path=$item
       with_items: ${files.toremove}
     - user: name=ftp state=absent remove=yes force=yes
@@ -85,6 +86,7 @@
         regexp='^[\s#]*root:' 
         line='root: admin@${domain}'
 
+    - group: name=remote
     - user: >
         name=root 
         generate_ssh_key=yes 
@@ -92,17 +94,75 @@
         ssh_key_comment=root@${inventory_hostname}
         shell=/bin/zsh
     - user: >
-        name=akerl
+        name=${admin_user}
+        password=${user_pw}
         generate_ssh_key=yes
         ssh_key_bits=8096
-        ssh_key_comment=akerl@${inventory_hostname}
+        ssh_key_comment=${admin_user}@${inventory_hostname}
         groups='wheel,remote'
         shell=/bin/zsh
     - github: username=${github_user} password=${github_pw}
+    - raw: 'ssh git@github.com -o StrictHostKeyChecking=no || true'
     - git: dest=${item.path} repo=${item.repo}
       with_items: ${repos}
 
-    - copy: src=files/dotdotdot.conf dest='/root/.../conf'
-    - copy: src=files/dotdotdot.conf dest='/home/akerl/.../conf'
+    - copy: src=files/dotdotdot.conf dest='/opt/dotdotdot/conf'
+    - file: state=link path='/root/...' src=/opt/dotdotdot
+    - file: state=link path='/home/akerl/...' src=/opt/dotdotdot
+    - command: /opt/dotdotdot/... install creates=/root/.zshrc
+    - command: su akerl -c '/opt/dotdotdot/... install' creates=/home/akerl/.zshrc
+
+    - file: path=/opt/packer/packer mode=0755
+    - file: state=link path=/usr/local/bin/packer src=/opt/packer/packer
+    - command: /usr/local/bin/packer -S fwknop --noconfirm creates=/usr/bin/fwknop
+    - shell: /usr/local/bin/packer -S gnupg1 --noconfirm > /dev/null creates=/usr/bin/gpg1
+      tags: test
+    - file: state=link path=/usr/bin/gpg src=/usr/bin/gpg1
+
+    - command: make install chdir=/opt/google-authenticator creates=/lib/security/pam_google_authenticator.so
+
+    - file: state=directory path=/home/akerl/.ssh owner=akerl group=users mode=0700
+    - assemble: src=/opt/keys dest=/home/akerl/.ssh/authorized_keys
+
+    - copy: src=files/sshd_config dest=/etc/ssh/sshd_config
+
+    - tokengen: length=16
+      register: twofa
+    - template: src=files/2fa.j2 dest=/root/.2fa
+    - lineinfile: >
+        dest=/etc/pam.d/su
+        regexp='auth\s*required\s*pam_wheel.so\s*use_uid'
+        line='auth required pam_wheel.so use_uid'
+    - lineinfile: >
+        dest=/etc/pam.d/su-l
+        regexp='auth\s*required\s*pam_wheel.so\s*use_uid'
+        line='auth required pam_wheel.so use_uid'
+    - lineinfile: >
+        dest=/etc/pam.d/su
+        insertafter='auth\s*required\s*pam_wheel.so\s*use_uid'
+        regexp='auth required pam_google_authenticator.so secret=~/.2fa'
+        line='auth required pam_google_authenticator.so secret=~/.2fa'
+    - lineinfile: >
+        dest=/etc/pam.d/su-l
+        insertafter='auth\s*required\s*pam_wheel.so\s*use_uid'
+        regexp='auth required pam_google_authenticator.so secret=~/.2fa'
+        line='auth required pam_google_authenticator.so secret=~/.2fa'
+    - lineinfile: >
+        dest=/etc/pam.d/system-auth
+        insertafter='auth\s*required\s*pam_unix.so'
+        regexp='auth required pam_google_authenticator.so secret=~/.2fa'
+        line='auth required pam_google_authenticator.so secret=~/.2fa'
+
+    - tokengen: length=32
+      register: gpg
+      tags: test
+    - gpgkey: <
+        passphrase=${gpg.token}
+        length=2048
+        expiry=0
+        name='Les Aker' 
+        comment=${inventory_hostname} 
+        email=admin@${inventory_hostname}.${domain}
+      tags: test
 ...
 

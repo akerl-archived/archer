@@ -3,6 +3,7 @@ packages:
   add:
     - base-devel
     - bzip2
+    - cpio
     - cronie
     - curl
     - dnsutils
@@ -50,6 +51,7 @@ packages:
     - sed
     - sqlite
     - sudo
+    - strace
     - systemd
     - systemd-sysvcompat
     - tar

@@ -1,0 +1,41 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# (c) 2013, akerl
+# Written by akerl
+#
+# This module is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This software is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this software.  If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import base64
+
+def main():
+  module = AnsibleModule(
+            argument_spec = dict(
+              length        = dict(default='24'),
+            )
+          )
+  length = int(module.params['length'])
+
+  while True:
+    token = base64.b64encode(os.urandom(100)).translate(None, '+/=')[0:length]
+    if len(token) == length:
+      break
+  module.exit_json(changed=False, msg='Generated token', token=token)
+
+# this is magic, see lib/ansible/module_common.py
+#<<INCLUDE_ANSIBLE_MODULE_COMMON>>
+
+main()
+

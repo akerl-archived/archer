@@ -154,12 +154,12 @@
         line='auth required pam_wheel.so use_uid'
     - lineinfile: >
         dest=/etc/pam.d/su
-        insertafter='auth\s*required\s*pam_wheel.so\s*use_uid'
+        insertafter='auth\s*required\s*pam_unix.so'
         regexp='auth required pam_google_authenticator.so secret=~/.2fa'
         line='auth required pam_google_authenticator.so secret=~/.2fa'
     - lineinfile: >
         dest=/etc/pam.d/su-l
-        insertafter='auth\s*required\s*pam_wheel.so\s*use_uid'
+        insertafter='auth\s*required\s*pam_unix.so'
         regexp='auth required pam_google_authenticator.so secret=~/.2fa'
         line='auth required pam_google_authenticator.so secret=~/.2fa'
     - lineinfile: >

@@ -140,7 +140,7 @@
 
     - tokengen: length=16 keyspace=base32
       register: twofa
-    - template: src=files/2fa.j2 dest=/root/.2fa
+    - template: src=files/2fa.j2 dest=/root/.2fa mode=0600
     - local_action: >
         command open 
         'https://www.google.com/chart?chs=300x250&chld=M|0&cht=qr&chl=otpauth://totp/${inventory_hostname}%3Fsecret%3D${twofa.token}'
@@ -188,5 +188,8 @@
     - local_action: shell while gpg --yes --no-tty --batch --delete-key admin@grego.a-rwx.org ; do echo -n ; done
     - local_action: command gpg --import tmp/${inventory_hostname}/root/gpg.pub
     - file: path=/root/gpg.pub state=absent
+
+
+    - local_action: file state=absent path=tmp
 ...
 

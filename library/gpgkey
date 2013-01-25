@@ -38,20 +38,20 @@ def getKeyID(name, comment, email):
   allKeys = [ ' '.join(x.split()[1:]) for x in sh.gpg('--list-keys').stdout.split('\n') ]
   thisKey = '{0} ({1}) <{2}>'.format(name, comment, email)
   for index, key in enumerate(allKeys):
-    if key = thisKey:
+    if key == thisKey:
       return allKeys[index-1].split()[0].split('/')[1]
   return None
 
 def main():
   module = AnsibleModule(
             argument_spec = dict(
-              name          = dict(required=True)
-              comment       = dict(required=True)
-              email         = dict(required=True)
-              expiry        = dict(default='0')
-              length        = dict(default='2048')
-              passphrase    = dict(default='')
-              replaceOld    = dict(default='no', choices=['yes','no'])
+              name          = dict(required=True),
+              comment       = dict(required=True),
+              email         = dict(required=True),
+              expiry        = dict(default='0'),
+              length        = dict(default='2048'),
+              passphrase    = dict(default=''),
+              replaceOld    = dict(default='no', choices=['yes','no']),
             )
           )
 
@@ -62,7 +62,7 @@ def main():
     if params['replaceOld'] == 'no':
       module.exit_json(changed=False, msg='key already exists', keyid=existingKey, passphrase='')
     else:
-      fingerprint = ( x.rsplit('=',1)[-1].translate(None, ' ') 
+      fingerprint = tuple( x.rsplit('=',1)[-1].translate(None, ' ') 
         for x in sh.gpg('--fingerprint', existingKey).stdout.split('\n') 
           if x.find('Key fingerprint') != -1 )[0]
       sh.gpg('--delete-secret-and-public-key', '--batch', fingerprint)

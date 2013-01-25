@@ -116,7 +116,6 @@
     - file: state=link path=/usr/local/bin/packer src=/opt/packer/packer
     - command: /usr/local/bin/packer -S fwknop --noconfirm creates=/usr/bin/fwknop
     - shell: /usr/local/bin/packer -S gnupg1 --noconfirm > /dev/null creates=/usr/bin/gpg1
-      tags: test
     - file: state=link path=/usr/bin/gpg src=/usr/bin/gpg1
 
     - command: make install chdir=/opt/google-authenticator creates=/lib/security/pam_google_authenticator.so
@@ -156,13 +155,14 @@
     - tokengen: length=32
       register: gpg
       tags: test
-    - gpgkey: <
+    - gpgkey: >
         passphrase=${gpg.token}
         length=2048
         expiry=0
         name='Les Aker' 
         comment=${inventory_hostname} 
         email=admin@${inventory_hostname}.${domain}
+        replaceOld=yes
       tags: test
 ...
 

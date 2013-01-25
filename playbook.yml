@@ -67,9 +67,18 @@
     - service: name=haveged.service action=start enabled=yes
     - service: name=syslog-ng.service action=start enabled=yes
     - service: name=cronie.service action=start enabled=yes
+    - service: name=remote-fs.target action=stop enabled=no
     - file: state=absent path=$item
       with_items: ${files.toremove}
     - user: name=ftp state=absent remove=yes force=yes
+    - lineinfile: >
+        dest=/etc/shadow
+        regexp='^dbus'
+        line='dbus:x:14871::::::'
+    - lineinfile: >
+        dest=/etc/shadow
+        regexp='^uuidd'
+        line='uuidd:x:14871::::::'
 
     - lineinfile: >
         dest=/etc/mail/exim.conf 
@@ -129,9 +138,12 @@
 
     - copy: src=files/sshd_config dest=/etc/ssh/sshd_config
 
-    - tokengen: length=16
+    - tokengen: length=16 keyspace=base32
       register: twofa
     - template: src=files/2fa.j2 dest=/root/.2fa
+    - local_action: >
+        command open 
+        'https://www.google.com/chart?chs=300x250&chld=M|0&cht=qr&chl=otpauth://totp/${inventory_hostname}%3Fsecret%3D${twofa.token}'
     - lineinfile: >
         dest=/etc/pam.d/su
         regexp='auth\s*required\s*pam_wheel.so\s*use_uid'
@@ -156,17 +168,25 @@
         regexp='auth required pam_google_authenticator.so secret=~/.2fa'
         line='auth required pam_google_authenticator.so secret=~/.2fa'
 
-    - tokengen: length=32
-      register: gpg
     - gpgkey: >
-        passphrase=${gpg.token}
         length=2048
         expiry=0
         name='Les Aker' 
         comment=${inventory_hostname} 
         email=admin@${inventory_hostname}.${domain}
         replaceOld=yes
-
-    - service: name=fwknopd.service action=start enabled=yes
+      register: newKey
+    - signkey: ${adminKeyID} ${newKey.passphrase}
+    - template: src=files/fwknop.conf dest=/etc/fwknop/access.conf
+    - lineinfile: >
+        dest=/etc/fwknop/fwknopd.conf
+        regexp='#*PCAP_FILTER\s*udp\s*port\s*\d+\s*;'
+        line='PCAP_FILTER udp port 465;'
+    - service: name=fwknopd.service action=restart enabled=yes
+    - command: gpg -a --output /root/gpg.pub --yes --export ${newKey.keyid}
+    - fetch: src=/root/gpg.pub dest=tmp
+    - local_action: shell while gpg --yes --no-tty --batch --delete-key admin@grego.a-rwx.org ; do echo -n ; done
+    - local_action: command gpg --import tmp/${inventory_hostname}/root/gpg.pub
+    - file: path=/root/gpg.pub state=absent
 ...
 

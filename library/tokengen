@@ -17,21 +17,34 @@
 # You should have received a copy of the GNU General Public License
 # along with this software.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-import base64
+import rand
+
+keyDefinitions = {
+  'base64'    : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
+  'base32'    : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567',
+  'alpha'     : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+  'alphalow'  : 'abcdefghijklmnopqrstuvwxyz',
+  'alphaup'   : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  'alphanum'  : 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890',
+  'numeric'   : '1234567890',
+}
 
 def main():
   module = AnsibleModule(
             argument_spec = dict(
               length        = dict(default='24'),
+              keyspace      = dict(default='alphanum')
             )
           )
   length = int(module.params['length'])
+  keyspace = module.params['keyspace']
+  if keyspace in keyDefinitions:
+    keyspace = keyDefinitions[keyspace]
 
-  while True:
-    token = base64.b64encode(os.urandom(100)).translate(None, '+/=')[0:length]
-    if len(token) == length:
-      break
+  token = ''
+  while len(token) < length:
+      token += random.choice(keyspace)
+
   module.exit_json(changed=False, msg='Generated token', token=token)
 
 # this is magic, see lib/ansible/module_common.py

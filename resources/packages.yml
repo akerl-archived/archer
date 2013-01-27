@@ -67,10 +67,20 @@ packages:
   remove:
     - zip
     - unzip
-    - linux
     - linux-firmware
     - grub-common
     - grub-bios
     - freetype2
     - fuse
+modules:
+  python2:
+    - sh
+    - requests
+    - pyyaml
+    - beautifulsoup4
+  python3:
+    - sh
+    - requests
+    - pyyaml
+    - beautifulsoup4
 ...

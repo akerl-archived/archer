@@ -1,0 +1,6 @@
+{% set myDev = ansible_cmdline['root'][:-1] %}
+device (hd0) {{ myDev }}
+root (hd0,0)  
+setup (hd0)
+quit
+

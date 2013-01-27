@@ -17,20 +17,48 @@
 # You should have received a copy of the GNU General Public License
 # along with this software.  If not, see <http://www.gnu.org/licenses/>.
 
-#import linode.api
+from linode.api import Api, ApiError
 
 def main():
   module = AnsibleModule(
             argument_spec = dict(
-              username      = dict(default=''),
-              password      = dict(default=''),
-              apikey        = dict(default=''),
               method        = dict(required=True),
-              name          = dict(default='')
-            )
+            ),
+            required_together = [['username','password']],
+            required_one_of = [['username','apikey']],
+            mutually_exclusive = [['apikey','password']],
+            check_invalid_arguments=False,
           )
   params = module.params
-  module.exit_json(changed=False, monkey='cat',ansible_facts={'hello':'world'})
+  if 'apikey' in params:
+    try:
+      myApi = Api(params['apikey'])
+    except ApiError:
+      module.fail_json(msg='api key not accepted')
+  else:
+    myApi = Api()
+    try:
+      myApi.user_getapikey(username=params['username'], password=params['password'])
+    except ApiError:
+      module.fail_json(msg='credentials not accepted')
+
+  try:
+    myApiCall = getattr(myApi, params['method'])
+  except AttributeError:
+    module.fail_json(msg='invalid api method (should never happen)')
+
+  callParams = params.copy()
+
+  for item in {'username', 'password', 'apikey', 'method'}:
+    if item in callParams:
+      callParams.pop(item)
+
+  try:
+    myResult = myApiCall(**callParams)
+  except ApiError as e:
+    module.fail_json(msg='api call failed', **e.value[0])
+
+  module.exit_json(changed=False, msg='winner', response=myResult)
 
 # this is magic, see lib/ansible/module_common.py
 #<<INCLUDE_ANSIBLE_MODULE_COMMON>>

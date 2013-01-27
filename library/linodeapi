@@ -58,7 +58,7 @@ def main():
   except ApiError as e:
     module.fail_json(msg='api call failed', **e.value[0])
 
-  module.exit_json(changed=False, msg='winner', response=myResult)
+  module.exit_json(changed=False, msg='api call succeeded', response=myResult)
 
 # this is magic, see lib/ansible/module_common.py
 #<<INCLUDE_ANSIBLE_MODULE_COMMON>>

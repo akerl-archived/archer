@@ -73,6 +73,12 @@
     - lineinfile: dest=/etc/locale.gen line='en_US ISO-8859-1' regexp='#?en_US ISO-8859-1'
     - command: locale-gen
     
+    - command: swapon --show=NAME --noheadings
+      register: swapdev
+    - command: awk '/ext/ { print $1 }' /etc/fstab
+      register: rootdev
+    - template: src=files/fstab.j2 dest=/etc/fstab
+    
     - user: name=ftp state=absent remove=yes force=yes
     - lineinfile: dest=/etc/shadow regexp='^dbus' line='dbus:x:14871::::::'
     - lineinfile: dest=/etc/shadow regexp='^uuidd' line='uuidd:x:14871::::::'
@@ -167,6 +173,7 @@
     - service: name=remote-fs.target action=stop enabled=no
     - service: name=exim.service action=start enabled=yes
     - service: name=fwknopd.service action=restart enabled=yes
+    - service: name=getty@tty1.service enabled=no
     
     - shell: cat /sys/hypervisor/type 2>/dev/null || true
       register: xencheck

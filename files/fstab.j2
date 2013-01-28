@@ -1,0 +1,9 @@
+# 
+# /etc/fstab: static file system information
+#
+# <device>  <dir>   <type>  <options>                             <dump>  <pass>
+tmpfs       /tmp    tmpfs   nodev,nosuid                          0       0
+proc        /proc   proc    defaults                              0       0
+{{ "%-10s"|format(rootdev.stdout) }} /       ext3    noatime,barrier=0,errors=remount-ro   0       1
+{{ "%-10s"|format(swapdev.stdout) }} none    swap    sw                                    0       0
+proc        /proc   proc    defaults                              0       0

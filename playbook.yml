@@ -141,6 +141,7 @@
     - command: /usr/local/bin/packer -S fwknop --noconfirm creates=/usr/bin/fwknop
     - shell: /usr/local/bin/packer -S gnupg1 --noconfirm > /dev/null creates=/usr/bin/gpg1
     - file: state=link path=/usr/bin/gpg src=/usr/bin/gpg1
+    - command: haveged
     - gpgkey: >
         length=2048
         expiry=0

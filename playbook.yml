@@ -114,9 +114,6 @@
     - tokengen: length=16 keyspace=base32
       register: twofa
     - template: src=files/2fa.j2 dest=/root/.2fa mode=0600
-    - shell: echo 'https://www.google.com/chart?chs=300x250&chld=M|0&cht=qr&chl=otpauth://totp/${inventory_hostname}?secret=${twofa.token}' > /twofactor
-    - fetch: src=/twofactor dest=feedback
-    - file: state=absent path=/twofactor
     - lineinfile: >
         dest=/etc/pam.d/su
         regexp='auth\s*required\s*pam_wheel.so\s*use_uid'
@@ -158,9 +155,6 @@
         dest=/etc/fwknop/fwknopd.conf
         regexp='#*PCAP_FILTER\s*udp\s*port\s*\d+\s*;'
         line='PCAP_FILTER udp port 465;'
-    - command: gpg -a --output /gpg.pub --yes --export ${newKey.keyid}
-    - fetch: src=/gpg.pub dest=feedback
-    - file: path=/gpg.pub state=absent
     
     - service: name=dhcpcd@eth0.service action=stop enabled=no
     - service: name=netcfg.service enabled=yes
@@ -188,13 +182,17 @@
 
   - hosts: xen
     vars_prompt:
-      - name: linode_pw
-        prompt: Linode password
-        private: yes
-        confirm: yes
+#      - name: linode_pw
+#        prompt: Linode password
+#        private: yes
+#        confirm: yes
     tasks:
-      - local_action: linodeupdate ${inventory_hostname} ${linode_user} ${linode_pw}
+#      - local_action: linodeapi 
+      - pause: prompt="Switch ${inventory_hostname} to use PV-GRUB and disable helpers"
   
+
+## Task specific configs go here
+
   - hosts: all
     vars_prompt:
       - name: root_pw
@@ -209,9 +207,23 @@
       
       - user: name=root password=${root_pw}
       
-      - local_action: command open "$(cat feedback/${inventory_hostname}/twofactor)"
+      - pause: prompt="All remote configuration completed. Press enter for local actions"
+
+      - local_action: >
+          command open
+          'https://www.google.com/chart?chs=300x250&chld=M|0&cht=qr&chl=otpauth://totp/${inventory_hostname}?secret=${twofa.token}'
+      - command: gpg -a --output /gpg.pub --yes --export ${newKey.keyid}
+      - fetch: src=/gpg.pub dest=feedback
+      - file: path=/gpg.pub state=absent
       - local_action: shell while gpg --yes --no-tty --batch --delete-key admin@${inventory_hostname}.${domain} ; do echo -n ; done
         ignore_errors: yes
       - local_action: command gpg --import feedback/${inventory_hostname}/gpg.pub
-        ignore_errors: yes
-      
+        ignore_errors: yes 
+
+      - pause: prompt="Press enter to reboot server(s), or Ctrl-C A to stop playbook"
+      - raw: reboot
+        async: 1
+        poll: 0
+
+...
+

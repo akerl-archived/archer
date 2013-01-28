@@ -172,58 +172,55 @@
     - group_by: key=${xencheck.stdout}
     - group_by: key=${ansible_virtualization_type}
     
-  - hosts: kvm
-    tasks:
-      - shell: /usr/local/bin/packer -S grub-legacy --noconfirm > /dev/null creates=/sbin/grub
-      - command: 'cp /usr/lib/grub/i386-pc/* /boot/grub/'
-      - template: src=files/grub.j2 dest=/root/grubcmd
-      - shell: cat /root/grubcmd | grub --no-curses
-      - file: state=absent path=/root/grubcmd
+- hosts: kvm
+  tasks:
+    - shell: /usr/local/bin/packer -S grub-legacy --noconfirm > /dev/null creates=/sbin/grub
+    - command: 'cp /usr/lib/grub/i386-pc/* /boot/grub/'
+    - template: src=files/grub.j2 dest=/root/grubcmd
+    - shell: cat /root/grubcmd | grub --no-curses
+    - file: state=absent path=/root/grubcmd
 
-  - hosts: xen
-    vars_prompt:
+- hosts: xen
+#  vars_prompt:
 #      - name: linode_pw
 #        prompt: Linode password
 #        private: yes
 #        confirm: yes
-    tasks:
+  tasks:
 #      - local_action: linodeapi 
-      - pause: prompt="Switch ${inventory_hostname} to use PV-GRUB and disable helpers"
-  
+    - pause: prompt="Switch ${inventory_hostname} to use PV-GRUB and disable helpers"
+
 
 ## Task specific configs go here
 
-  - hosts: all
-    vars_prompt:
-      - name: root_pw
-        prompt: Root password
-        private: yes
-        encrypt: sha512_crypt
-    vars_files:
-      - resources/common.yml
-    tasks:
-      - file: state=absent path=/boot/grub/menu.lst
-      - command: /opt/roller/autoroll.py
-      
-      - user: name=root password=${root_pw}
-      
-      - pause: prompt="All remote configuration completed. Press enter for local actions"
+- hosts: all
+  vars_prompt:
+    - name: root_pw
+      prompt: Root password
+      private: yes
+      confirm: yes
+      encrypt: sha512_crypt
+  vars_files:
+    - resources/common.yml
+  tasks:
+    - file: state=absent path=/boot/grub/menu.lst
+   - command: /opt/roller/autoroll.py
 
-      - local_action: >
-          command open
-          'https://www.google.com/chart?chs=300x250&chld=M|0&cht=qr&chl=otpauth://totp/${inventory_hostname}?secret=${twofa.token}'
-      - command: gpg -a --output /gpg.pub --yes --export ${newKey.keyid}
-      - fetch: src=/gpg.pub dest=feedback
-      - file: path=/gpg.pub state=absent
-      - local_action: shell while gpg --yes --no-tty --batch --delete-key admin@${inventory_hostname}.${domain} ; do echo -n ; done
-        ignore_errors: yes
-      - local_action: command gpg --import feedback/${inventory_hostname}/gpg.pub
-        ignore_errors: yes 
+    - pause: prompt="All remote configuration completed. Press enter for local actions"
 
-      - pause: prompt="Press enter to reboot server(s), or Ctrl-C A to stop playbook"
-      - raw: reboot
-        async: 1
-        poll: 0
+    - local_action: >
+        command open
+        'https://www.google.com/chart?chs=300x250&chld=M|0&cht=qr&chl=otpauth://totp/${inventory_hostname}?secret=${twofa.token}'
+    - command: gpg -a --output /gpg.pub --yes --export ${newKey.keyid}
+    - fetch: src=/gpg.pub dest=feedback
+    - file: path=/gpg.pub state=absent
+    - local_action: shell while gpg --yes --no-tty --batch --delete-key admin@${inventory_hostname}.${domain} ; do echo -n ; done
+      ignore_errors: yes
+    - local_action: command gpg --import feedback/${inventory_hostname}/gpg.pub
+      ignore_errors: yes 
 
+    - pause: prompt="Press enter to set root password and reboot server(s), or Ctrl-C A to stop playbook"
+    - command: shutdown
+    - user: name=root password=${root_pw}
 ...
 

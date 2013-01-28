@@ -204,7 +204,7 @@
     - resources/common.yml
   tasks:
     - file: state=absent path=/boot/grub/menu.lst
-   - command: /opt/roller/autoroll.py
+    - command: /opt/roller/autoroll.py
 
     - pause: prompt="All remote configuration completed. Press enter for local actions"
 

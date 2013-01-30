@@ -4,6 +4,6 @@
 # <device>  <dir>   <type>  <options>                             <dump>  <pass>
 tmpfs       /tmp    tmpfs   nodev,nosuid                          0       0
 proc        /proc   proc    defaults                              0       0
-{{ "%-11s"|format(rootdev.stdout) }} /       ext3    noatime,barrier=0,errors=remount-ro   0       1
+{{ "%-11s"|format(rootdev.stdout) }} /       {{ rootformat.stdout }}    noatime,barrier=0,errors=remount-ro   0       1
 {{ "%-11s"|format(swapdev.stdout) }} none    swap    sw                                    0       0
-proc        /proc   proc    defaults                              0       0
+

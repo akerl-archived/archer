@@ -40,7 +40,7 @@
     - pip: name=$item state=latest pip=pip3
       with_items: ${modules.python3}
     - raw: systemctl --system daemon-reload
-    
+
     - template: src=files/hostname.j2 dest=/etc/hostname
     - template: src=files/hosts.j2 dest=/etc/hosts
     - template: src=files/netcfg.j2 dest=/etc/network.d/main
@@ -77,6 +77,8 @@
       register: swapdev
     - command: awk '/ext/ { print $1 }' /etc/fstab
       register: rootdev
+    - command: awk '/ext/ { print $3 }' /etc/fstab
+      register: rootformat
     - template: src=files/fstab.j2 dest=/etc/fstab
     
     - user: name=ftp state=absent remove=yes force=yes
@@ -179,25 +181,24 @@
       register: xencheck
     - group_by: key=${xencheck.stdout}
     - group_by: key=${ansible_virtualization_type}
-    
+
 - hosts: kvm
   tasks:
+    - file: state=absent path=/boot/grub
+    - file: state=directory path=/boot/grub
     - shell: /usr/local/bin/packer -S grub-legacy --noconfirm > /dev/null creates=/sbin/grub
-    - command: 'cp /usr/lib/grub/i386-pc/* /boot/grub/'
+    - shell: "cp /usr/lib/grub/i386-pc/* /boot/grub/"
     - template: src=files/grub.j2 dest=/root/grubcmd
     - shell: cat /root/grubcmd | grub --no-curses
     - file: state=absent path=/root/grubcmd
+    - file: state=directory path=/etc/systemd/system/getty.target.wants
+      only_if: "'ttyS0' in '${ansible_cmdline.console}'"
+    - command: ln -s /usr/lib/systemd/system/getty@.service /etc/systemd/system/getty.target.wants/getty@ttyS0.service
+      only_if: "'ttyS0' in '${ansible_cmdline.console}'"
 
 - hosts: xen
-#  vars_prompt:
-#      - name: linode_pw
-#        prompt: Linode password
-#        private: yes
-#        confirm: yes
   tasks:
-#      - local_action: linodeapi 
     - pause: prompt="Switch ${inventory_hostname} to use PV-GRUB and disable helpers"
-
 
 ## Task specific configs go here
 
@@ -228,7 +229,7 @@
       ignore_errors: yes 
 
     - pause: prompt="Press enter to set root password and reboot server(s), or Ctrl-C A to stop playbook"
-    - command: shutdown
+    - command: shutdown -r
     - user: name=root password=${root_pw}
 ...
 

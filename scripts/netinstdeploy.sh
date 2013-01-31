@@ -17,6 +17,7 @@ mount /dev/vda1 /mnt
 swapon /dev/vda2
 
 pacstrap /mnt base base-devel git jshon python python-pip openssh wget
+genfstab -p /mnt >> /mnt/etc/fstab
 
 arch-chroot /mnt <<EOF
   git clone git://github.com/keenerd/packer.git /opt/packer

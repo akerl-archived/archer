@@ -16,14 +16,14 @@ mkswap /dev/vda2
 mount /dev/vda1 /mnt
 swapon /dev/vda2
 
-pacstrap /mnt base base-devel git jshon python python-pip
+pacstrap /mnt base base-devel git jshon python python-pip openssh wget
 
 arch-chroot /mnt <<EOF
   git clone git://github.com/keenerd/packer.git /opt/packer
   chmod a+x /opt/packer/packer
   /opt/packer/packer -S grub-legacy --noconfirm
   cp /usr/lib/grub/i386-pc/* /boot/grub/
-  echo "device (hd0) /dev/vda0
+  echo "device (hd0) /dev/vda1
 root (hd0,0)
 setup (hd0)
 " | grub --no-curses
@@ -32,5 +32,6 @@ setup (hd0)
   pip install sh
   rm /boot/grub/menu.lst
   /opt/roller/autoroll.py
+  systemctl enable sshd
 EOF
 

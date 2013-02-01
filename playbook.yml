@@ -99,7 +99,7 @@
         ssh_key_comment=${admin_user}@${inventory_hostname}
         groups='wheel,remote'
         shell=/bin/zsh
-    
+
     - github: username=${github_user} password=${github_pw}
     - raw: 'ssh git@github.com -o StrictHostKeyChecking=no || true'
     - git: dest=${item.path} repo=${item.repo}

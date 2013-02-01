@@ -173,6 +173,7 @@
     - service: name=syslog-ng.service action=start enabled=yes
     - service: name=cronie.service action=start enabled=yes
     - service: name=remote-fs.target action=stop enabled=no
+    - service: name=ntpd.service action=start enabled=yes
     - service: name=exim.service action=start enabled=yes
     - service: name=fwknopd.service action=restart enabled=yes
     - service: name=getty@tty1.service enabled=no

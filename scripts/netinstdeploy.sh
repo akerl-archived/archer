@@ -34,7 +34,7 @@ setup (hd0)
   rm /boot/grub/menu.lst
   /opt/roller/autoroll.py
   systemctl enable sshd.service
-  systemctl enable dhcpcd.service
+  systemctl enable dhcpcd@eth0.service
   rm -rf /opt/roller
   rm -rf /opt/packer
   mkdir -p /root/.ssh

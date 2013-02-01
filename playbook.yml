@@ -20,7 +20,7 @@
     - resources/common.yml
     - resources/packages.yml
     - resources/pacnews.yml
-    - resources/ips.yml
+    - resources/nodes.yml
     - resources/repos.yml
   tasks:
     - pip: name=$item state=latest pip=pip2
@@ -177,7 +177,15 @@
     - service: name=exim.service action=start enabled=yes
     - service: name=fwknopd.service action=restart enabled=yes
     - service: name=getty@tty1.service enabled=no
-    
+
+    - file: state=directory path=/etc/systemd/system/getty.target.wants
+      when_set: ${info.${inventory_hostname}.tty}
+    - file: >
+        state=link 
+        src='/usr/lib/systemd/system/getty@.service' 
+        path='/etc/systemd/system/getty.target.wants/getty@${info.${inventory_hostname}.tty}.service'
+      when_set: ${info.${inventory_hostname}.tty}
+
     - shell: cat /sys/hypervisor/type 2>/dev/null || true
       register: xencheck
     - group_by: key=${xencheck.stdout}
@@ -193,10 +201,6 @@
     - template: src=files/grub.j2 dest=/root/grubcmd
     - shell: cat /root/grubcmd | grub --no-curses
     - file: state=absent path=/root/grubcmd
-    - file: state=directory path=/etc/systemd/system/getty.target.wants
-      only_if: "'ttyS0' in '${ansible_cmdline.console}'"
-    - command: ln -s /usr/lib/systemd/system/getty@.service /etc/systemd/system/getty.target.wants/getty@ttyS0.service
-      only_if: "'ttyS0' in '${ansible_cmdline.console}'"
 
 - hosts: xen
   tasks:

@@ -72,6 +72,7 @@
     - lineinfile: dest=/etc/locale.gen line='en_US.UTF-8 UTF-8' regexp='#?en_US.UTF-8 UTF-8'
     - lineinfile: dest=/etc/locale.gen line='en_US ISO-8859-1' regexp='#?en_US ISO-8859-1'
     - command: locale-gen
+    - copy: src=files/locale.conf dest=/etc/locale.conf
     
     - command: swapon --show=NAME --noheadings
       register: swapdev

@@ -42,5 +42,5 @@ setup (hd0)
 EOF
 
 umount /mnt
-swapoff
+swapoff /dev/vda2
 

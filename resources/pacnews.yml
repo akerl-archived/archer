@@ -9,7 +9,7 @@ pacnews:
     old: f989b33c1fa8e80927b1783acaa1dea6eb0c078f
     keep: old
   - path: /etc/pacman.d/mirrorlist
-    new: 0405d493d6d528d4c3d7a24841c0cc82e7311d57
+    new: ANY
     old: 162f45764216fe0cc2697c5ca63f901032f26ea6
     keep: old
   - path: /etc/locale.gen

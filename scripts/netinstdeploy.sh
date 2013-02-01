@@ -33,6 +33,10 @@ setup (hd0)
   pip install sh
   rm /boot/grub/menu.lst
   /opt/roller/autoroll.py
-  systemctl enable sshd
+  systemctl enable sshd.service
+  systemctl enable dhcpcd.service
+  rm -rf /opt/roller
+  rm -rf /opt/packer
+  passwd
 EOF
 

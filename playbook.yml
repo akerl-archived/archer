@@ -225,7 +225,7 @@
     - command: gpg -a --output /gpg.pub --yes --export ${newKey.keyid}
     - fetch: src=/gpg.pub dest=feedback
     - file: path=/gpg.pub state=absent
-    - local_action: shell while gpg --yes --no-tty --batch --delete-key admin@${inventory_hostname}.${domain} ; do echo -n ; done
+    - local_action: shell lockfile .block ; while gpg --yes --no-tty --batch --delete-key admin@${inventory_hostname}.${domain} ; do echo -n ; done ; rm -f .block
       ignore_errors: yes
     - local_action: command gpg --import feedback/${inventory_hostname}/gpg.pub
       ignore_errors: yes 

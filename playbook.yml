@@ -182,10 +182,11 @@
     - group_by: key=${xencheck.stdout}
     - group_by: key=${ansible_virtualization_type}
 
+    - file: state=absent path=/boot
+    - file: state=directory path=/boot/grub
+
 - hosts: kvm
   tasks:
-    - file: state=absent path=/boot/grub
-    - file: state=directory path=/boot/grub
     - shell: /usr/local/bin/packer -S grub-legacy --noconfirm > /dev/null creates=/sbin/grub
     - shell: "cp /usr/lib/grub/i386-pc/* /boot/grub/"
     - template: src=files/grub.j2 dest=/root/grubcmd

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+read -s -p 'New root password:' newpw
+echo
+
 parted -ms /dev/vda rm 1
 parted -ms /dev/vda rm 2
 
@@ -37,6 +40,6 @@ setup (hd0)
   systemctl enable dhcpcd.service
   rm -rf /opt/roller
   rm -rf /opt/packer
-  passwd
+  echo "root:$newpw" | chpasswd
 EOF
 

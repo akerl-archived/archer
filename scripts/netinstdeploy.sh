@@ -24,7 +24,7 @@ arch-chroot /mnt <<EOF
   chmod a+x /opt/packer/packer
   /opt/packer/packer -S grub-legacy --noconfirm
   cp /usr/lib/grub/i386-pc/* /boot/grub/
-  echo "device (hd0) /dev/vda1
+  echo "device (hd0) /dev/vda
 root (hd0,0)
 setup (hd0)
 " | grub --no-curses

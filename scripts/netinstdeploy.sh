@@ -41,3 +41,6 @@ setup (hd0)
   wget -O /root/.ssh/authorized_keys 'https://raw.github.com/akerl/keys/master/ender.pub'
 EOF
 
+umount /mnt
+swapoff
+

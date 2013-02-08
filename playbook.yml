@@ -111,6 +111,8 @@
     - file: state=link path='/home/${admin_user}/...' src=/opt/dotdotdot
     - command: /opt/dotdotdot/... install creates=/root/.zshrc
     - command: su ${admin_user} -c '/opt/dotdotdot/... install' creates=/home/${admin_user}/.zshrc
+
+    - command: /opt/env/scripts/scriptRefresh /opt/env/scripts 
     
     - file: path=/opt/packer/packer mode=0755
     - file: state=link path=/usr/local/bin/packer src=/opt/packer/packer
@@ -186,6 +188,14 @@
         src='/usr/lib/systemd/system/getty@.service' 
         path='/etc/systemd/system/getty.target.wants/getty@${info.${inventory_hostname}.tty}.service'
       when_set: ${info.${inventory_hostname}.tty}
+
+    - file: state=directory path=/srv/save/logs/$item
+      with_items:
+        - exim
+        - uwsgi
+        - nginx
+    - copy: src=files/logrotate.conf dest=/etc/logrotate.conf
+    - copy: src=files/logrotate.cron dest=/etc/cron.daily/logrotate
 
     - shell: cat /sys/hypervisor/type 2>/dev/null || true
       register: xencheck

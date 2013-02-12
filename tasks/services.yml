@@ -1,0 +1,23 @@
+---
+- service: name=dhcpcd@eth0.service action=stop enabled=no
+- service: name=netcfg.service enabled=yes
+- service: name=iptables enabled=yes
+- service: name=ip6tables enabled=yes
+- service: name=haveged.service action=start enabled=yes
+- service: name=syslog-ng.service action=start enabled=yes
+- service: name=cronie.service action=start enabled=yes
+- service: name=remote-fs.target action=stop enabled=no
+- service: name=ntpd.service action=start enabled=yes
+- service: name=exim.service action=start enabled=yes
+- service: name=fwknopd.service action=restart enabled=yes
+- service: name=getty@tty1.service enabled=no
+
+- file: state=directory path=/etc/systemd/system/getty.target.wants
+  when_set: ${tty}
+- file: >
+    state=link 
+    src='/usr/lib/systemd/system/getty@.service' 
+    path='/etc/systemd/system/getty.target.wants/getty@${tty}.service'
+  when_set: ${tty}
+...
+

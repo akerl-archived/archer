@@ -3,7 +3,6 @@ domain: a-rwx.org
 admin_user: akerl
 adminKeyID: '43D0048F'
 github_user: akerl
-linode_user: akerl
 files:
   toremove:
     - /etc/skel/.bashrc

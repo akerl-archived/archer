@@ -1,0 +1,29 @@
+---
+- file: state=absent path=$item
+  with_items: ${files.toremove}
+- user: name=ftp state=absent remove=yes force=yes
+- lineinfile: >
+    dest=/etc/shadow 
+    regexp='^dbus' 
+    line='dbus:x:14871::::::'
+- lineinfile: >
+    dest=/etc/shadow 
+    regexp='^uuidd' 
+    line='uuidd:x:14871::::::'
+- group: state=present name=remote
+- user: >
+    name=root 
+    generate_ssh_key=yes 
+    ssh_key_bits=8096 
+    ssh_key_comment=root@${inventory_hostname}
+    shell=/bin/zsh
+- user: >
+    name=${admin_user}
+    password=${admin_pw}
+    generate_ssh_key=yes
+    ssh_key_bits=8096
+    ssh_key_comment=${admin_user}@${inventory_hostname}
+    groups='wheel,remote'
+    shell=/bin/zsh
+...
+

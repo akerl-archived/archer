@@ -1,0 +1,37 @@
+---
+- pip: >
+    name=$item 
+    state=latest 
+    pip=pip2
+  with_items: ${modules.python2}
+
+- copy: >
+    src=files/mirrorlist 
+    dest=/etc/pacman.d/mirrorlist
+- copy: >
+    src=files/pacman.conf 
+    dest=/etc/pacman.conf
+
+- pacman: update=yes
+- pacman: state=present name=$item
+  with_items: ${packages.add}
+- pacman: state=absent name=$item
+  with_items: ${packages.remove}
+
+- pacnew: >
+    path=${item.path} 
+    new=${item.new} 
+    old=${item.old} 
+    keep=${item.keep}
+  with_items: ${pacnews}
+- pacnew: check_all=yes
+
+- pip: >
+    name=$item 
+    state=latest 
+    pip=pip3
+  with_items: ${modules.python3}
+
+- raw: systemctl --system daemon-reload
+...
+

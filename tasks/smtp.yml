@@ -1,0 +1,20 @@
+---
+- lineinfile: >
+    dest=/etc/mail/exim.conf 
+    regexp='^[ #]*primary_hostname =' 
+    line='primary_hostname = ${inventory_hostname}.${domain}'
+- lineinfile: >
+    dest=/etc/mail/exim.conf 
+    insertafter='^[ #]*primary_hostname ='
+    regexp='^local_interfaces ='
+    line='local_interfaces = 127.0.0.1'
+- lineinfile: >
+    dest=/etc/mail/exim.conf 
+    regexp='^domainlist local_domains =' 
+    line="domainlist local_domains = localhost : localhost.localdomain : ${inventory_hostname} : ${inventory_hostname}.${domain}"
+- lineinfile: >
+    dest=/etc/mail/aliases 
+    regexp='^[\s#]*root:' 
+    line='root: admin@${domain}'
+...
+

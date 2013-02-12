@@ -1,0 +1,10 @@
+---
+- hosts: kvm
+  tasks:
+    - shell: /usr/local/bin/packer -S grub-legacy --noconfirm > /dev/null creates=/sbin/grub
+    - shell: "cp /usr/lib/grub/i386-pc/* /boot/grub/"
+    - template: src=../files/grub.j2 dest=/root/grubcmd
+    - shell: cat /root/grubcmd | grub --no-curses
+    - file: state=absent path=/root/grubcmd
+...
+

@@ -1,0 +1,10 @@
+---
+- command: swapon --show=NAME --noheadings
+  register: swapdev
+- command: awk '/ext/ { print $1 }' /etc/fstab
+  register: rootdev
+- command: awk '/ext/ { print $3 }' /etc/fstab
+  register: rootformat
+- template: src=files/fstab.j2 dest=/etc/fstab
+...
+

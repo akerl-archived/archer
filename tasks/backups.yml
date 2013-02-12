@@ -1,0 +1,10 @@
+---
+- file: state=directory path=/srv/save/logs/$item
+  with_items:
+    - exim
+    - uwsgi
+    - nginx
+- copy: src=files/logrotate.conf dest=/etc/logrotate.conf
+- copy: src=files/logrotate.cron dest=/etc/cron.daily/logrotate
+...
+

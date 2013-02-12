@@ -1,0 +1,7 @@
+---
+- github: username=${github_user} password=${github_pw}
+- raw: 'ssh git@github.com -o StrictHostKeyChecking=no || true'
+- git: dest=${item.path} repo=${item.repo}
+  with_items: ${repos}
+...
+

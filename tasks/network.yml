@@ -1,0 +1,11 @@
+---
+- template: src=files/hostname.j2 dest=/etc/hostname
+- template: src=files/hosts.j2 dest=/etc/hosts
+- template: src=files/netcfg.j2 dest=/etc/network.d/main
+- lineinfile: dest=/etc/conf.d/netcfg regexp=^NETWORKS line=NETWORKS=(main)
+- raw: 'systemctl stop dhcpcd@eth0 ; systemctl start netcfg ; systemctl start netcfg'
+- copy: src=files/resolv.conf dest=/etc/resolv.conf
+- copy: src=files/iptables dest=/etc/iptables/iptables.rules
+- copy: src=files/ip6tables dest=/etc/iptables/ip6tables.rules
+...
+

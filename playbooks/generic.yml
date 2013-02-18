@@ -1,0 +1,33 @@
+---
+- hosts: all
+  vars_prompt:
+    - name: admin_pw
+      prompt: User password
+      private: yes
+      confirm: yes
+      encrypt: sha512_crypt
+    - name: github_pw
+      prompt: Github password
+      private: yes
+      confirm: yes
+  vars_files:
+    - ../vars/common.yml
+    - ../vars/packages.yml
+    - ../vars/pacnews.yml
+    - ../vars/repos.yml
+    - ../nodes/${inventory_hostname}.yml
+  tasks:
+    - include: ../tasks/packages.yml
+    - include: ../tasks/network.yml
+    - include: ../tasks/smtp.yml
+    - include: ../tasks/locale.yml
+    - include: ../tasks/fstab.yml
+    - include: ../tasks/users.yml
+    - include: ../tasks/git.yml
+    - include: ../tasks/env.yml
+    - include: ../tasks/security.yml
+    - include: ../tasks/services.yml
+    - include: ../tasks/backups.yml
+    - include: ../tasks/sorthosts.yml
+...
+

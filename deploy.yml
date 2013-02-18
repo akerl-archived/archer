@@ -1,56 +1,15 @@
 ---
 - include: tasks/kickstart.yml
 
-- hosts: all
-  vars_prompt:
-    - name: admin_pw
-      prompt: User password
-      private: yes
-      confirm: yes
-      encrypt: sha512_crypt
-    - name: github_pw
-      prompt: Github password
-      private: yes
-      confirm: yes
-  vars_files:
-    - vars/common.yml
-    - vars/packages.yml
-    - vars/pacnews.yml
-    - vars/repos.yml
-    - nodes/${inventory_hostname}.yml
-  tasks:
-    - include: tasks/packages.yml
-    - include: tasks/network.yml
-    - include: tasks/smtp.yml
-    - include: tasks/locale.yml
-    - include: tasks/fstab.yml
-    - include: tasks/users.yml
-    - include: tasks/git.yml
-    - include: tasks/env.yml
-    - include: tasks/security.yml
-    - include: tasks/services.yml
-    - include: tasks/backups.yml
-    - include: tasks/sorthosts.yml
+- include: playbooks/generic.yml
+
 - include: tasks/kvm.yml
 - include: tasks/xen.yml
 
-## Task specific configs go here
+- include: roles/nameserver.yml
+- include: roles/webserver.yml
+- include: roles/irc.yml
 
-- hosts: all
-  vars_prompt:
-    - name: root_pw
-      prompt: Root password
-      private: yes
-      confirm: yes
-      encrypt: sha512_crypt
-  vars_files:
-    - vars/common.yml
-  tasks:
-    - include: tasks/kernel.yml
-    - pause: prompt="All remote configuration completed. Press enter for local actions"
-    - include: tasks/local.yml
-    - pause: prompt="Press enter to set root password and reboot server(s), or Ctrl-C A to stop playbook"
-    - command: shutdown -r
-    - user: name=root password=${root_pw}
+- include: playbooks/finalize.yml
 ...
 

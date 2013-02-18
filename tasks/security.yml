@@ -1,59 +1,75 @@
 ---
-- copy: >
-    src=files/sshd_config 
+- name: Drop in sshd_config
+  copy: >
+    src=../files/sshd_config 
     dest=/etc/ssh/sshd_config
-- file: >
+- name: "Create admin's .ssh"
+  file: >
     state=directory 
     path=/home/${admin_user}/.ssh 
     owner=${admin_user} 
     group=users mode=0700
-- assemble: 
+- name: Populate admin keys
+  assemble: 
     src=/opt/keys 
     dest=/home/${admin_user}/.ssh/authorized_keys 
     owner=${admin_user} 
     group=users 
     mode=600
 
-- command: >
+- name: Make google auth
+  command: >
     make install 
     chdir=/opt/google-authenticator 
     creates=/lib/security/pam_google_authenticator.so
-- tokengen: length=16 keyspace=base32
+- name: Generate two factor secret key
+  tokengen: length=16 keyspace=base32
   register: twofa
-- template: src=files/2fa.j2 dest=/root/.2fa mode=0600
-- lineinfile: >
+- name: Generate two factor configuration
+  template: src=../files/2fa.j2 dest=/root/.2fa mode=0600
+- name: Require wheel membership for su
+  lineinfile: >
     dest=/etc/pam.d/su
     regexp='auth\s*required\s*pam_wheel.so\s*use_uid'
     line='auth required pam_wheel.so use_uid'
-- lineinfile: >
+- name: Require wheel membership for su-l
+  lineinfile: >
     dest=/etc/pam.d/su-l
     regexp='auth\s*required\s*pam_wheel.so\s*use_uid'
     line='auth required pam_wheel.so use_uid'
-- lineinfile: >
+- name: Require two factor auth for su
+  lineinfile: >
     dest=/etc/pam.d/su
     insertafter='auth\s*required\s*pam_unix.so'
     regexp='auth required pam_google_authenticator.so secret=~/.2fa'
     line='auth required pam_google_authenticator.so secret=~/.2fa'
-- lineinfile: >
+- name: Require two factor auth for su-l
+  lineinfile: >
     dest=/etc/pam.d/su-l
     insertafter='auth\s*required\s*pam_unix.so'
     regexp='auth required pam_google_authenticator.so secret=~/.2fa'
     line='auth required pam_google_authenticator.so secret=~/.2fa'
-- lineinfile: >
+- name: Require two factor auth for console
+  lineinfile: >
     dest=/etc/pam.d/system-auth
     insertafter='auth\s*required\s*pam_unix.so'
     regexp='auth required pam_google_authenticator.so secret=~/.2fa'
     line='auth required pam_google_authenticator.so secret=~/.2fa'
 
-- command: >
+- name: Install fwknop
+  command: >
     /usr/local/bin/packer -S fwknop --noconfirm 
     creates=/usr/bin/fwknop
-- shell: >
+- name: Install gnupg1
+  shell: >
     /usr/local/bin/packer -S gnupg1 --noconfirm > /dev/null 
     creates=/usr/bin/gpg1
-- file: state=link path=/usr/bin/gpg src=/usr/bin/gpg1
-- command: haveged
-- gpgkey: >
+- name: Link gpg1 as /usr/bin/gpg
+  file: state=link path=/usr/bin/gpg src=/usr/bin/gpg1
+- name: Start haveged
+  command: haveged
+- name: Generate local gpg key
+  gpgkey: >
     length=2048
     expiry=0
     name='Les Aker' 
@@ -61,9 +77,12 @@
     email=admin@${inventory_hostname}.${domain}
     replaceOld=yes
   register: newKey
-- signkey: ${adminKeyID} ${newKey.passphrase}
-- template: src=files/fwknop.j2 dest=/etc/fwknop/access.conf
-- lineinfile: >
+- name: Sign admin key with local key
+  signkey: ${adminKeyID} ${newKey.passphrase}
+- name: Populate fwknop access configuration
+  template: src=../files/fwknop.j2 dest=/etc/fwknop/access.conf
+- name: Switch fwknop capture port
+  lineinfile: >
     dest=/etc/fwknop/fwknopd.conf
     regexp='#*PCAP_FILTER\s*udp\s*port\s*\d+\s*;'
     line='PCAP_FILTER udp port 465;'

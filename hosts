@@ -9,3 +9,12 @@ quim
 [cluster:vars]
 ansible_python_interpreter="/usr/bin/python2"
 
+[nameserver]
+olhado
+
+[webserver]
+olhado
+
+[irc]
+miro
+

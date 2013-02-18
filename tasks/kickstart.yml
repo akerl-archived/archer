@@ -2,8 +2,11 @@
 - hosts: all
   gather_facts: no
   tasks:
-    - script: ../scripts/pacmankeygen.sh
-    - raw: pacman -Sy --noconfirm --needed pacman
-    - raw: pacman -S --noconfirm --needed python2 python2-pip
+    - name: Generate pacman keys
+      script: ../scripts/pacmankeygen.sh
+    - name: Upgrade pacman
+      raw: pacman -Sy --noconfirm --needed pacman
+    - name: Install python2
+      raw: pacman -S --noconfirm --needed python2 python2-pip
 ...
 

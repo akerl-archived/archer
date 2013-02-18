@@ -1,20 +1,34 @@
 ---
-- service: name=dhcpcd@eth0.service action=stop enabled=no
-- service: name=netcfg.service enabled=yes
-- service: name=iptables enabled=yes
-- service: name=ip6tables enabled=yes
-- service: name=haveged.service action=start enabled=yes
-- service: name=syslog-ng.service action=start enabled=yes
-- service: name=cronie.service action=start enabled=yes
-- service: name=remote-fs.target action=stop enabled=no
-- service: name=ntpd.service action=start enabled=yes
-- service: name=exim.service action=start enabled=yes
-- service: name=fwknopd.service action=restart enabled=yes
-- service: name=getty@tty1.service enabled=no
+- name: Disable DHCP
+  service: name=dhcpcd@eth0.service action=stop enabled=no
+- name: Enable netcfg
+  service: name=netcfg.service enabled=yes
+- name: Enable iptables
+  service: name=iptables enabled=yes
+- name: Enable ip6tables
+  service: name=ip6tables enabled=yes
+- name: Enable haveged
+  service: name=haveged.service action=start enabled=yes
+- name: Enable syslog-ng
+  service: name=syslog-ng.service action=start enabled=yes
+- name: Enable cronie
+  service: name=cronie.service action=start enabled=yes
+- name: Disable remote-fs
+  service: name=remote-fs.target action=stop enabled=no
+- name: Enable NTPd
+  service: name=ntpd.service action=start enabled=yes
+- name: Enable exim
+  service: name=exim.service action=start enabled=yes
+- name: Enable fwknop
+  service: name=fwknopd.service action=restart enabled=yes
+- name: Disable getty
+  service: name=getty@tty1.service enabled=no
 
-- file: state=directory path=/etc/systemd/system/getty.target.wants
+- name: Create getty target if needed
+  file: state=directory path=/etc/systemd/system/getty.target.wants
   when_set: ${tty}
-- file: >
+- name: Enable getty if needed
+  file: >
     state=link 
     src='/usr/lib/systemd/system/getty@.service' 
     path='/etc/systemd/system/getty.target.wants/getty@${tty}.service'

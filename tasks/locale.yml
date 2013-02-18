@@ -1,8 +1,13 @@
 ---
-- command: timedatectl set-timezone US/Eastern
-- lineinfile: dest=/etc/locale.gen line='en_US.UTF-8 UTF-8' regexp='#?en_US.UTF-8 UTF-8'
-- lineinfile: dest=/etc/locale.gen line='en_US ISO-8859-1' regexp='#?en_US ISO-8859-1'
-- command: locale-gen
-- copy: src=files/locale.conf dest=/etc/locale.conf
+- name: Setting timezone
+  command: timedatectl set-timezone US/Eastern
+- name: Enable UTF-8
+  lineinfile: dest=/etc/locale.gen line='en_US.UTF-8 UTF-8' regexp='#?en_US.UTF-8 UTF-8'
+- name: Enable ISO-8859-1
+  lineinfile: dest=/etc/locale.gen line='en_US ISO-8859-1' regexp='#?en_US ISO-8859-1'
+- name: Regenerate locales
+  command: locale-gen
+- name: Drop in locale.conf
+  copy: src=../files/locale.conf dest=/etc/locale.conf
 ...
 

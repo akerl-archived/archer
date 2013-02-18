@@ -1,0 +1,6 @@
+---
+- hosts: nameserver
+  tasks:
+    - action: ping
+...
+

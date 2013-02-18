@@ -1,11 +1,19 @@
 ---
-- template: src=files/hostname.j2 dest=/etc/hostname
-- template: src=files/hosts.j2 dest=/etc/hosts
-- template: src=files/netcfg.j2 dest=/etc/network.d/main
-- lineinfile: dest=/etc/conf.d/netcfg regexp=^NETWORKS line=NETWORKS=(main)
-- raw: 'systemctl stop dhcpcd@eth0 ; systemctl start netcfg ; systemctl start netcfg'
-- copy: src=files/resolv.conf dest=/etc/resolv.conf
-- copy: src=files/iptables dest=/etc/iptables/iptables.rules
-- copy: src=files/ip6tables dest=/etc/iptables/ip6tables.rules
+- name: Generate /etc/hostname
+  template: src=../files/hostname.j2 dest=/etc/hostname
+- name: Generate /etc/hosts
+  template: src=../files/hosts.j2 dest=/etc/hosts
+- name: Generate netcfg configuration
+  template: src=../files/netcfg.j2 dest=/etc/network.d/main
+- name: Update netcfg defaults
+  lineinfile: dest=/etc/conf.d/netcfg regexp=^NETWORKS line=NETWORKS=(main)
+- name: Switch over to static networking
+  raw: 'systemctl stop dhcpcd@eth0 ; systemctl start netcfg ; systemctl start netcfg'
+- name: Drop in resolv.conf
+  copy: src=../files/resolv.conf dest=/etc/resolv.conf
+- name: Drop in iptables rules
+  copy: src=../files/iptables dest=/etc/iptables/iptables.rules
+- name: Drop in ip6tables rules
+  copy: src=../files/ip6tables dest=/etc/iptables/ip6tables.rules
 ...
 

@@ -60,7 +60,7 @@ def main():
       changed = True 
 
     if changed:
-      module.exit_json(changed=True, msg='made requested modifications %s %s')
+      module.exit_json(changed=True, msg='made requested modifications')
     else:
       module.exit_json(changed=False, msg='no modifications required')
 

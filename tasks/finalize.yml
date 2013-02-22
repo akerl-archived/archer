@@ -9,9 +9,9 @@
   vars_files:
     - ../vars/common.yml
   tasks:
-    - include: ../tasks/kernel.yml
+    - include: kernel.yml
     - pause: prompt="All remote configuration completed. Press enter for local actions"
-    - include: ../tasks/local.yml
+    - include: local.yml
     - pause: prompt="Press enter to set root password and reboot server(s), or Ctrl-C A to stop playbook"
     - name: Schedule shutdown
       command: shutdown -r

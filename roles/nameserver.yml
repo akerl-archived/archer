@@ -1,6 +1,9 @@
 ---
 - hosts: nameserver
   tasks:
-    - action: ping
+    - name: Grab DNS repo
+      git: repo='git@github.com:akerl/dns.git' dest=/opt/dns
+    - name: Install nsd
+      pacman: state=present name=nsd
 ...
 

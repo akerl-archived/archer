@@ -1,7 +1,7 @@
 ---
 - include: tasks/kickstart.yml
 
-- include: playbooks/generic.yml
+- include: tasks/generic.yml
 
 - include: tasks/kvm.yml
 - include: tasks/xen.yml
@@ -10,6 +10,6 @@
 - include: roles/webserver.yml
 - include: roles/irc.yml
 
-- include: playbooks/finalize.yml
+- include: tasks/finalize.yml
 ...
 

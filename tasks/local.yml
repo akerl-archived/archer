@@ -2,11 +2,9 @@
 - name: Find old host key
   local_action: shell awk '/grego/ {print $NF}' ~/.ssh/known_hosts | sort | uniq
   register: oldhostkey
-  tags: test
 - name: Remove old entries from local knownhosts
   local_action: shell sed -i '' 's|${oldhostkey.stdout}|${ansible_ssh_host_key_rsa_public}|' ~/.ssh/known_hosts
   when_string: ${oldhostkey.stdout} != ${ansible_ssh_host_key_rsa_public}
-  tags: test
 - name: Open two factor QR code
   local_action: >
     command open

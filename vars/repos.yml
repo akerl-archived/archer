@@ -15,6 +15,9 @@ repos:
   - name: env
     repo: 'git@github.com:akerl/env.git'
     path: /opt/env
+  - name: privenv
+    repo: 'git@github.com:akerl/privenv.git'
+    path: /opt/privenv
   - name: keys
     repo: 'git@github.com:akerl/keys.git'
     path: /opt/keys 

@@ -21,6 +21,9 @@ repos:
   - name: keys
     repo: 'git@github.com:akerl/keys.git'
     path: /opt/keys 
+  - name: dns
+    repo: 'git@github.com:akerl/dns.git'
+    path: /opt/dns
   - name: dotdotdot
     repo: 'git://github.com/ingydotnet/....git'
     path: /opt/dotdotdot

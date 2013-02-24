@@ -3,9 +3,6 @@
 
 - include: tasks/generic.yml
 
-- include: tasks/kvm.yml
-- include: tasks/xen.yml
-
 - include: roles/nameserver.yml
 - include: roles/webserver.yml
 - include: roles/irc.yml

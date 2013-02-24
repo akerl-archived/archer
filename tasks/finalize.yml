@@ -9,7 +9,6 @@
   vars_files:
     - ../vars/common.yml
   tasks:
-    - include: kernel.yml
     - pause: prompt="All remote configuration completed. Press enter for local actions"
     - include: local.yml
     - pause: prompt="Press enter to set root password and reboot server(s), or Ctrl-C A to stop playbook"

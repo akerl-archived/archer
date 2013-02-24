@@ -8,10 +8,5 @@
 - name: Group by kvm status
   group_by: key=${ansible_virtualization_type}
   when_set: ${ansible_virtualization_type}
-
-- name: Remove /boot
-  file: state=absent path=/boot
-- name: Recreate /boot/grub
-  file: state=directory path=/boot/grub
 ...
 

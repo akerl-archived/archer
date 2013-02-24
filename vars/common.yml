@@ -10,5 +10,6 @@ files:
     - /etc/skel/.bash_profile
     - /etc/skel/.screenrc
     - /etc/vconsole.conf
+    - /boot
 ...
 

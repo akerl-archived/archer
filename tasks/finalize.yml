@@ -1,7 +1,6 @@
 ---
 - hosts: all 
   vars_prompt:
-    - include: kernel.yml
     - name: root_pw
       prompt: Root password
       private: yes 
@@ -10,6 +9,7 @@
   vars_files:
     - ../vars/common.yml
   tasks:
+    - include: kernel.yml
     - pause: prompt="All remote configuration completed. Press enter for local actions"
     - include: local.yml
     - pause: prompt="Press enter to set root password and reboot server(s), or Ctrl-C A to stop playbook"

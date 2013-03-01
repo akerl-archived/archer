@@ -1,7 +1,4 @@
 ---
-- name: Recreate /boot/grub
-  file: state=directory path=/boot/grub
-
 - name: Clear old grub menu.lst
   file: state=absent path=/boot/grub/menu.lst
 - name: Roll kernel

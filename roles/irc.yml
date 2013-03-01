@@ -11,5 +11,6 @@
         'echo "$certificatestring" |
         openssl req -nodes -newkey rsa:2048 -keyout ${admin_user}.key -x509 -days 3650 -out ${admin_user}.cert'
         creates=/home/${admin_user}/.irssi/certs/user
+        chdir=/home/${admin_user}/.irssi/certs
 ...
 

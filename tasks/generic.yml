@@ -28,7 +28,6 @@
     - include: security.yml
     - include: services.yml
     - include: backups.yml
-    - include: kernel.yml
     - include: sorthosts.yml
 - include: kvm.yml
 - include: xen.yml

@@ -1,6 +1,7 @@
 ---
 - hosts: all 
   vars_prompt:
+    - include: kernel.yml
     - name: root_pw
       prompt: Root password
       private: yes 

@@ -1,0 +1,40 @@
+---
+- hosts: cluster
+  vars_files:
+    - ../vars/common.yml
+  tasks:
+    - name: Remove FTP user
+      user: name=ftp state=absent remove=yes force=yes
+
+    - name: Add remote group
+      group: state=present name=remote
+    - name: Adjust root user
+      user: >
+        name=root
+        password={{root.password}}
+        generate_ssh_key=yes
+        ssh_key_bits=8096
+        ssh_key_comment=root@{{inventory_hostname}}
+        shell=/bin/zsh
+    - name: Add admin user
+      user: >
+        name={{admin.username}}
+        password={{admin.password}}
+        generate_ssh_key=yes
+        ssh_key_bits=8096
+        ssh_key_comment={{admin.username}}@{{inventory_hostname}}
+        groups='wheel,remote'
+        shell=/bin/zsh
+
+    - name: Preload known_hosts for root
+      copy: >
+        src=../files/known_hosts
+        dest=/root/.ssh/known_hosts
+    - name: Preload known_hosts for admin
+      copy: >
+        src=../files/known_hosts
+        dest=/home/{{admin.username}}/.ssh/known_hosts
+        owner={{admin.username}}
+        group={{admin.username}}
+...
+

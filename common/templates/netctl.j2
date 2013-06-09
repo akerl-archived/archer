@@ -1,0 +1,30 @@
+Description='main networking config'
+Interface=eth0
+Connection=ethernet
+Hostname='{{ inventory_hostname }}'
+
+IP=static
+IPCustom=(
+{% for ip in v4addr %}
+'addr add dev eth0 {{ ip }} brd +'
+{% endfor %}
+'route add default via {{ v4gw }}'
+)
+
+IP6=static
+Address6=(
+{% for ip in v6addr %}
+'{{ ip }}'
+{% endfor %}
+)
+Gateway6='{{ v6gw }}'
+
+DNS=(
+{% for ip in resolvers %}
+'{{ ip }}'
+{% endfor %}
+)
+DNSOptions=(
+'rotate'
+)
+

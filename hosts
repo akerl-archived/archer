@@ -1,21 +1,31 @@
 [cluster]
+miro    ansible_ssh_host=69.164.217.166
+grego   ansible_ssh_host=50.116.33.15
+olhado  ansible_ssh_host=173.255.193.119
+
+[linodes]
 miro
 grego
 olhado
-quara
-ela
-quim
 
-[cluster:vars]
-ansible_python_interpreter="/usr/bin/python2"
-
-[nameserver]
+[xen]
+miro
+grego
 olhado
 
-[webserver]
+[dns]
+olhado
+
+[web]
 olhado
 
 [irc]
 miro
-ela
+grego
+
+[kernel]
+grego
+
+[all:vars]
+ansible_python_interpreter="/usr/bin/env python2"
 

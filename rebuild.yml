@@ -1,0 +1,91 @@
+---
+- hosts: linodes
+  gather_facts: no
+  connection: local
+  vars_files:
+    - vars/linode.yml
+  tasks:
+    - name: Load API key
+      keychain: keychain=archer service=linode-api
+      register: linode
+    - name: Issue shutdown job
+      linodeapi: >
+        apikey={{linode.password}}
+        method=linode.shutdown
+        linodeid={{linode_id}}
+    - name: Grab list of config profiles
+      linodeapi: >
+        apikey={{linode.password}}
+        method=linode.config.list
+        linodeid={{linode_id}}
+      register: config_profiles
+    - name: Grab list of disk images
+      linodeapi: >
+        apikey={{linode.password}}
+        method=linode.disk.list
+        linodeid={{linode_id}}
+      register: disk_images
+    - name: Delete config profiles
+      linodeapi: >
+        apikey={{linode.password}}
+        method=linode.config.delete
+        linodeid={{linode_id}}
+        configid={{item.ConfigID}}
+      with_items: config_profiles.response
+    - name: Delete disk images
+      linodeapi: >
+        apikey={{linode.password}}
+        method=linode.disk.delete
+        linodeid={{linode_id}}
+        diskid={{item.DISKID}}
+      with_items: disk_images.response
+    - name: Wait for jobs to complete
+      linodeapi_wait: >
+        apikey={{linode.password}}
+        linodeid={{linode_id}}
+    - name: Create swap image
+      linodeapi: >
+        apikey={{linode.password}}
+        method=linode.disk.create
+        linodeid={{linode_id}}
+        label=swap
+        type=swap
+        size={{swap_size}}
+      register: new_swap_image
+    - name: Create distro image
+      linodeapi: >
+        apikey={{linode.password}}
+        method=linode.disk.createfromdistribution
+        linodeid={{linode_id}}
+        label={{inventory_hostname}}
+        distributionid={{distro_id}}
+        size={{root_size}}
+        rootpass="{{lookup('pipe', '/usr/local/brew/bin/pwgen -snc 30 1')}}"
+        rootsshkey="{{lookup('file','~/.ssh/id_rsa.pub')}}"
+      register: new_distro_image
+    - name: Create config profile
+      linodeapi: >
+        apikey={{linode.password}}
+        method='linode.config.create'
+        linodeid={{linode_id}}
+        label={{inventory_hostname}}
+        kernelid={{kernel_id}}
+        disklist='{{new_distro_image.response.DiskID}},{{new_swap_image.response.DiskID}},,,,,,,'
+      register: new_config_profile
+    - name: Boot the system
+      linodeapi: >
+        apikey={{linode.password}}
+        method=linode.boot
+        linodeid={{linode_id}}
+        configid={{new_config_profile.response.ConfigID}}
+    - name: Wait for the boot job
+      linodeapi_wait:
+        apikey={{linode.password}}
+        linodeid={{linode_id}}
+    - name: Wait for the Linode to be up
+      wait_for:
+        host={{ansible_ssh_host}}
+        port=22
+        timeout=3000
+...
+

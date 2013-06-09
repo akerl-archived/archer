@@ -1,0 +1,59 @@
+---
+- hosts: cluster
+  vars_files:
+    - ../vars/common.yml
+  tasks:
+    - name: Identify swap device
+      command: swapon --show=NAME --noheadings
+      register: swapdev
+    - name: Identify root device
+      command: awk '/ext/ { print $1 }' /etc/fstab
+      register: rootdev
+    - name: Identify root format
+      command: awk '/ext/ { print $3 }' /etc/fstab
+      register: rootformat
+    - name: Generate /etc/fstab
+      template: src=../templates/fstab.j2 dest=/etc/fstab
+
+    - name: Enable haveged
+      service: >
+        name=haveged
+        state=started
+        enabled=yes
+    - name: Enable syslog-ng
+      service: >
+        name=syslog-ng
+        state=started
+        enabled=yes
+    - name: Enable cronie
+      service: >
+        name=cronie
+        state=started
+        enabled=yes
+    - name: Enable NTPd
+      service:
+        name=ntpd
+        state=started
+        enabled=yes
+
+    - name: Disable getty
+      service: >
+        name=getty@tty1.service
+        enabled=no
+    - name: Create getty target if needed
+      file: state=directory path=/etc/systemd/system/getty.target.wants
+      when_set: ${tty}
+    - name: Enable getty if needed
+      file: >
+        state=link
+        src='/usr/lib/systemd/system/getty@.service'
+        path='/etc/systemd/system/getty.target.wants/getty@${tty}.service'
+      when_set: ${tty}
+
+    - name: Remove specified files
+      file: state=absent path=$item
+      with_items: ${files.toremove}
+    - name: Recreate /boot/grub
+      file: state=directory path=/boot/grub
+...
+

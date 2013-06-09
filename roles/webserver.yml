@@ -1,6 +1,0 @@
----
-- hosts: webserver
-  tasks:
-    - action: ping
-...
-

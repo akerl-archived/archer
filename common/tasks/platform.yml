@@ -1,0 +1,26 @@
+---
+- hosts: linodes
+  connection: local
+  vars_files:
+    - ../../vars/linode.yml
+  tasks:
+    - name: Get configuration profiles
+      linodeapi: >
+        apikey={{linode.password}}
+        method=linode.config.list
+        linodeid={{linode_id}}
+      register: config_profiles
+    - name: Disable helpers and switch to pv-grub
+      linodeapi: >
+        apikey={{linode.password}}
+        method=linode.config.update
+        linodeid={{linode_id}}
+        configid={{item.ConfigID}}
+        helper_disableUpdateDB=0
+        devtmpfs_automount=0
+        helper_xen=0
+        helper_depmod=0
+        kernelid={{pvgrub_id}}
+      with_items: config_profiles.response
+...
+

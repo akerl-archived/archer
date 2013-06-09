@@ -1,0 +1,66 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# (c) 2013, akerl
+
+import requests
+import json
+import urllib
+
+def main():
+    module = AnsibleModule(
+        argument_spec = dict(
+            source        = dict(default='~/.ssh/id_rsa.pub'),
+            username      = dict(required=True),
+            password      = dict(required=True),
+            repo          = dict(required=True),
+        )
+    )
+
+    username = module.params['username']
+    password = module.params['password']
+    creds = (username, password)
+    repo = module.params['repo']
+    base_url = 'https://bitbucket.org/api/1.0/repositories/{0}/{1}/deploy-keys/'.format(username, repo)
+
+    try:
+        requests.get(base_url, auth=creds).raise_for_status()
+    except:
+        module.fail_json(msg='creds not accepted')
+
+    with open(os.path.expanduser(module.params['source'])) as handle:
+        contents = handle.readlines()[0].rsplit(None, 1)
+    key = contents[0]
+    label = contents[1]
+    data = urllib.urlencode({'key': key, 'label': label})
+
+    try:
+        keyRequest = requests.get(base_url, auth=creds)
+        keyRequest.raise_for_status()
+        currentKeys = keyRequest.json()
+    except:
+        module.fail_json(msg='failed to get current keys')
+
+    for thisKey in currentKeys:
+        if thisKey['label'] == label:
+            if thisKey['key'] != key:
+                try:
+                    requests.put(base_url + str(thisKey['pk']), auth=creds, data=data).raise_for_status()
+                except:
+                    module.fail_json(msg='failed to patch old key')
+                module.exit_json(changed=True, msg='updated old key')
+            else:
+                module.exit_json(changed=False, msg='key already in place')
+
+    try:
+        tmp = requests.post(base_url, auth=creds, data=data)
+        tmp.raise_for_status()
+    except:
+        module.fail_json(msg='failed to post new key {0}'.format(tmp.text))
+    module.exit_json(changed=True, msg='new key pushed')
+
+# this is magic, see lib/ansible/module_common.py
+#<<INCLUDE_ANSIBLE_MODULE_COMMON>>
+
+main()
+

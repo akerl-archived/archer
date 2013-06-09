@@ -19,18 +19,21 @@
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import tempfile
+
 DOCUMENTATION = '''
 ---
 module: pip
 short_description: Manages Python library dependencies.
 description:
-     - Manage Python library dependencies.
+     - Manage Python library dependencies. To use this module, one of the following keys is required: C(name)
+       or C(requirements).
 version_added: "0.7"
 options:
   name:
     description:
-      - The name of a Python library to install
-    required: true
+      - The name of a Python library to install or the url of the remote package. 
+    required: false
     default: null
   version:
     description:
@@ -47,13 +50,31 @@ options:
       - An optional path to a I(virtualenv) directory to install into
     required: false
     default: null
+  virtualenv_site_packages:
+    version_added: "1.0"
+    description:
+      - Whether the virtual environment will inherit packages from the
+        global site-packages directory.  Note that if this setting is
+        changed on an already existing virtual environment it will not
+        have any effect, the environment must be deleted and newly
+        created.
+    required: false
+    default: "no"
+    choices: [ "yes", "no" ]
+  virtualenv_command:
+    version_aded: "1.1"
+    description:
+      - The command to create the virtual environment with. For example
+        C(pyvenv), C(virtualenv), C(virtualenv2).
+    required: false
+    default: virtualenv
   use_mirrors:
     description:
       - Whether to use mirrors when installing python libraries.  If using
         an older version of pip (< 1.0), you should set this to no because
         older versions of pip do not support I(--use-mirrors).
     required: false
-    default: yes
+    default: "yes"
     choices: [ "yes", "no" ]
     version_added: "1.0"
   state:
@@ -68,13 +89,25 @@ options:
     required: false
     default: null
     version_added: "1.0"
+  pip:
+    description:
+        - Changes what pip binary to use
+    required: false
+    default: pip
+    version_added: "1.2"
 examples:
    - code: "pip: name=flask"
      description: Install I(flask) python package.
    - code: "pip: name=flask version=0.8"
      description: Install I(flask) python package on version 0.8.
+   - code: "pip: name='svn+http://myrepo/svn/MyApp#egg=MyApp'"
+     description: Install I(MyApp) using one of the remote protocols (bzr+,hg+,git+,svn+) or tarballs (zip, gz, bz2) C(pip) supports. You do not have to supply '-e' option in extra_args. For these source names, C(use_mirrors) is ignored and not applicable.
    - code: "pip: name=flask virtualenv=/my_app/venv"
-     description: "Install I(Flask) (U(http://flask.pocoo.org/)) into the specified I(virtualenv)"
+     description: "Install I(Flask) (U(http://flask.pocoo.org/)) into the specified I(virtualenv), inheriting none of the globally installed modules"
+   - code: "pip: name=flask virtualenv=/my_app/venv virtualenv_site_packages=yes"
+     description: "Install I(Flask) (U(http://flask.pocoo.org/)) into the specified I(virtualenv), inheriting globally installed modules"
+   - code: "pip: name=flask virtualenv=/my_app/venv virtualenv_command=virtualenv-2.7"
+     description: "Install I(Flask) (U(http://flask.pocoo.org/)) into the specified I(virtualenv), using Python 2.7"
    - code: "pip: requirements=/my_app/requirements.txt"
      description: Install specified python requirements.
    - code: "pip: requirements=/my_app/requirements.txt virtualenv=/my_app/venv"
@@ -82,7 +115,7 @@ examples:
    - code: "pip: requirements=/my_app/requirements.txt extra_args='-i https://example.com/pypi/simple'"
      description: Install specified python requirements and custom Index URL.
 notes:
-   - Please note that U(http://www.virtualenv.org/, virtualenv) must be installed on the remote host if the virtualenv parameter is specified.
+   - Please note that virtualenv (U(http://www.virtualenv.org/)) must be installed on the remote host if the virtualenv parameter is specified.
 requirements: [ "virtualenv", "pip" ]
 author: Matt Wright
 '''
@@ -123,47 +156,6 @@ def _fail(module, cmd, out, err):
     module.fail_json(cmd=cmd, msg=msg)
 
 
-def run_command(self, args, check_rc=False, close_fds=False, executable=None):
-  '''
-  Execute a command, returns rc, stdout, and stderr.
-  args is the command to run
-  If args is a list, the command will be run with shell=False.
-  Otherwise, the command will be run with shell=True when args is a string.
-  Other arguments:
-  - check_rc (boolean)  Whether to call fail_json in case of
-    non zero RC.  Default is False.
-  - close_fds (boolean) See documentation for subprocess.Popen().
-    Default is False.
-  - executable (string) See documentation for subprocess.Popen().
-    Default is None.
-  '''
-  if isinstance(args, list):
-    shell = False
-  elif isinstance(args, basestring):
-    shell = True
-  else:
-    msg = "Argument 'args' to run_command must be list or string"
-    self.fail_json(rc=257, cmd=args, msg=msg)
-  rc = 0
-  msg = None
-  try:
-    cmd = subprocess.Popen(args,
-            executable=executable,
-            shell=shell,
-            close_fds=close_fds,
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = cmd.communicate()
-    rc = cmd.returncode
-  except (OSError, IOError), e:
-    self.fail_json(rc=e.errno, msg=str(e), cmd=args)
-  except:
-    self.fail_json(rc=257, msg=traceback.format_exc(), cmd=args)
-  if rc != 0 and check_rc:
-    msg = err.rstrip()
-    self.fail_json(cmd=args, rc=rc, stdout=out, stderr=err, msg=msg)
-  return (rc, out, err)
-
-
 def main():
     state_map = dict(
         present='install',
@@ -178,46 +170,83 @@ def main():
             version=dict(default=None, required=False),
             requirements=dict(default=None, required=False),
             virtualenv=dict(default=None, required=False),
-            use_mirrors=dict(default='yes', choices=BOOLEANS),
+            virtualenv_site_packages=dict(default='no', type='bool'),
+            virtualenv_command=dict(default='virtualenv', required=False),
+            use_mirrors=dict(default='yes', type='bool'),
             extra_args=dict(default=None, required=False),
             pip=dict(default='pip', required=False),
         ),
         required_one_of=[['name', 'requirements']],
         mutually_exclusive=[['name', 'requirements']],
+        supports_check_mode=True
     )
 
     state = module.params['state']
     name = module.params['name']
     version = module.params['version']
     requirements = module.params['requirements']
-    use_mirrors = module.boolean(module.params['use_mirrors'])
+    use_mirrors = module.params['use_mirrors']
     extra_args = module.params['extra_args']
-    pip_name = module.params['pip']
+    pip_path = module.params['pip']
 
     if state == 'latest' and version is not None:
         module.fail_json(msg='version is incompatible with state=latest')
-    if name and '=' in name:
-        module.fail_json(msg='version must be specified in the version parameter')
 
+    # pip can accept a path to a local project or a VCS url beginning
+    # with svn+, git+, hg+, or bz+ and these sources usually do not qualify
+    # --use-mirrors. Furthermore, the -e option is applied only when
+    # source is a VCS url. Therefore, we will have branch cases for each
+    # type of sources.
+    #
+    # is_vcs includes those begin with svn+, git+, hg+ or bzr+
+    # is_tar ends with .zip, .tar.gz, or .tar.bz2
+    is_vcs = False
+    is_tar = False
+    if name.endswith('.tar.gz') or name.endswith('.tar.bz2') or name.endswith('.zip'):
+        is_tar = True
+    elif name.startswith('svn+') or name.startswith('git+') or \
+       name.startswith('hg+') or name.startswith('bzr+'):
+        is_vcs = True
+       
     err = ''
     out = ''
 
     env = module.params['virtualenv']
+    virtualenv_command = module.params['virtualenv_command']
 
     if env:
-        virtualenv = module.get_bin_path('virtualenv', True)
+        env = os.path.expanduser(env)
+        virtualenv = module.get_bin_path(virtualenv_command, True)
         if not os.path.exists(os.path.join(env, 'bin', 'activate')):
-            cmd = '%s %s' % (virtualenv, env)
-            rc, out_venv, err_venv = run_command(module, cmd)
+            if module.check_mode:
+                module.exit_json(changed=True)
+            if module.params['virtualenv_site_packages']:
+                cmd = '%s --system-site-packages %s' % (virtualenv, env)
+            else:
+                cmd = '%s %s' % (virtualenv, env)
+            rc, out_venv, err_venv = module.run_command(cmd)
             out += out_venv
             err += err_venv
             if rc != 0:
                 _fail(module, cmd, out, err)
 
-    pip = _get_pip(module, env, pip_name)
+    pip = _get_pip(module, env, pip_path)
 
     cmd = '%s %s' % (pip, state_map[state])
-    if state != 'absent' and use_mirrors:
+
+
+    # If is_vcs=True, we must add -e option (we assume users won't add that to extra_args). 
+    if is_vcs:
+        args_list = []  # used if extra_args is not used at all
+        if extra_args:
+            args_list = extra_args.split(' ')            
+        if '-e' not in args_list:
+            args_list.append('-e')
+            # Ok, we will reconstruct the option string
+            extra_args = ' '.join(args_list)
+    # for tarball or vcs source, applying --use-mirrors doesn't really make sense
+    is_package = is_vcs or is_tar       # just a shortcut for bool
+    if not is_package and state != 'absent' and use_mirrors:
         cmd += ' --use-mirrors'
     if extra_args:
         cmd += ' %s' % extra_args
@@ -225,8 +254,11 @@ def main():
         cmd += ' %s' % _get_full_name(name, version)
     elif requirements:
         cmd += ' -r %s' % requirements
-
-    rc, out_pip, err_pip = run_command(module, cmd)
+    
+    if module.check_mode:
+        module.exit_json(changed=True)
+    os.chdir(tempfile.gettempdir())
+    rc, out_pip, err_pip = module.run_command(cmd)
     out += out_pip
     err += err_pip
     if rc == 1 and state == 'absent' and 'not installed' in out_pip:
@@ -240,7 +272,7 @@ def main():
         changed = 'Successfully installed' in out_pip
 
     module.exit_json(changed=changed, cmd=cmd, name=name, version=version,
-                     state=state, requirements=requirements, virtualenv=env)
+                     state=state, requirements=requirements, virtualenv=env, stdout=out, stderr=err)
 
 # this is magic, see lib/ansible/module_common.py
 #<<INCLUDE_ANSIBLE_MODULE_COMMON>>

@@ -1,6 +1,0 @@
----
-- hosts: xen
-  tasks:
-    - pause: prompt="Switch ${inventory_hostname} to use PV-GRUB and disable helpers"
-...
-

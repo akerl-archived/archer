@@ -1,0 +1,142 @@
+---
+modules:
+    python2:
+        - sh
+        - requests
+        - pyyaml
+        - beautifulsoup4
+    python3:
+        - sh
+        - requests
+        - pyyaml
+        - beautifulsoup4
+packages:
+    add:
+        - autoconf
+        - automake
+        - bc
+        - bison
+        - bzip2
+        - cpio
+        - cronie
+        - curl
+        - dnsutils
+        - e2fsprogs
+        - exim
+        - findutils
+        - flex
+        - gawk
+        - git
+        - gnupg
+        - gpgme
+        - grep
+        - gzip
+        - haveged
+        - heirloom-mailx
+        - htop
+        - inetutils
+        - iotop
+        - iproute2
+        - iptables
+        - iputils
+        - jshon
+        - less
+        - logrotate
+        - lsof
+        - lvm2
+        - m4
+        - make
+        - mdadm
+        - mtr
+        - net-tools
+        - nmap
+        - ntp
+        - openssh
+        - patch
+        - procps-ng
+        - psmisc
+        - python
+        - python-distribute
+        - python-pip
+        - python-virtualenv
+        - python2
+        - python2-distribute
+        - python2-pip
+        - python2-virtualenv
+        - rsync
+        - screen
+        - sed
+        - sqlite
+        - strace
+        - sudo
+        - syslog-ng
+        - systemd-sysvcompat
+        - tar
+        - tcpdump
+        - tmux
+        - vim
+        - wget
+        - which
+        - whois
+        - yajl
+        - zsh
+        - netctl
+    remove:
+        - jfsutils
+        - zip
+        - unzip
+        - linux-firmware
+        - grub-common
+        - grub-bios
+        - freetype2
+        - fuse
+        - pciutils
+        - pcmciautils
+        - ppp
+        - reiserfsprogs
+        - xfsprogs
+        - usbutils
+        - netcfg
+pacnews:
+  - path: /etc/fstab
+    new: a805082718eb9814229968ab11be76a8d34d6033
+    old: 4ebaee2c67a0e6df3def1fbd8ce5194d07ca6546
+    keep: old
+  - path: /etc/pacman.d/mirrorlist
+    new: ANY
+    old: 162f45764216fe0cc2697c5ca63f901032f26ea6
+    keep: old
+  - path: /etc/shadow
+    new: e0d59e5430b4dd9c6ed721e29de450487d4ad89f
+    old: ANY
+    keep: old
+  - path: /etc/gshadow
+    new: c96a71de4466893f090905f536f418ddac708e71
+    old: 1dbb1d43b8c1854898589bb6d1ea92d49be508c6
+    keep: old
+  - path: /etc/passwd
+    new: 5db8ef768aa79940d0c28347ebfa8755cfb53920
+    old: 110262be0777e00239aa9413eba1bd9f8e82e84c
+    keep: old
+  - path: /etc/group
+    new: 27d785a76a1e5c61f691ce2bbc3cbe441310b7c2
+    old: fe85b1c169d6ecff70868e05d762dd7528f65e7c
+    keep: old
+  - path: /etc/locale.gen
+    new: 5672ef37a399b86ef417fa42155777e93840dd53
+    old: 13d6ce49547f3bd457364983fab74b254569dd90
+    keep: new
+  - path: /etc/pacman.conf
+    new: 3c1bddf27602e02fb57801c0ea7313b3869acc92
+    old: d5825b3d61c7e71f16c8790af1cb0a2c429bbff6
+    keep: old
+  - path: /boot/grub/grub.cfg
+    new: 5b7fcb0718a23035c039eb2fda9e088bb13ae611
+    old: NONE
+    keep: new
+  - path: /etc/mkinitcpio.conf
+    new: c27c0ae5797582f47f8db1368fc730658c8d4cfe
+    old: 67ca9a323c979ee93c4c1a5592b02c89564d630e
+    keep: new
+...
+

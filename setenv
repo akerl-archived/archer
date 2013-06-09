@@ -3,3 +3,4 @@ SCRIPTPATH=$( builtin cd $(dirname $0) ; pwd -P )
 export ANSIBLE_LIBRARY="$SCRIPTPATH/library:/usr/share/ansible"
 export ANSIBLE_HOSTS="$SCRIPTPATH/hosts"
 export ANSIBLE_CONFIG="$SCRIPTPATH/config"
+

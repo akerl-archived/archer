@@ -1,0 +1,10 @@
+SOURCE: ANY;
+OPEN_PORTS: tcp/20;
+FW_ACCESS_TIMEOUT: 30;
+REQUIRE_SOURCE_ADDRESS: Y;
+GPG_DECRYPT_ID: {{ new_key.keyid }};
+GPG_DECRYPT_PW: {{ new_key.passphrase }};
+GPG_REQUIRE_SIG: Y;
+GPG_IGNORE_SIG_VERIFY_ERROR: N;
+GPG_REMOTE_ID: {{ gpg_key_id }};
+

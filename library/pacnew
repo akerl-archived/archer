@@ -20,22 +20,28 @@
 import sh
 
 def check_pacnew(module, path, testNew, testOld, keep):
-  if not os.path.isfile(path) or not os.path.isfile(path + '.pacnew'):
-    module.exit_json(changed=False, msg='pacnew {0} not found'.format(path))
+    if os.path.isfile(path):
+        realOld = str(sh.sha1sum(path).split()[0])
+    else:
+        realOld = 'NONE'
+    if os.path.isfile(path + '.pacnew'):
+        realNew = str(sh.sha1sum(path + '.pacnew').split()[0])
+    else:
+        realNew = 'NONE'
 
-  realOld = str(sh.sha1sum(path).split()[0])
-  realNew = str(sh.sha1sum(path + '.pacnew').split()[0])
+    if ( testNew is None or realNew == testNew ) and (testOld is None or realOld == testOld ):
+        if keep == 'old':
+            if realNew != 'NONE':
+                os.unlink(path + '.pacnew')
+            module.exit_json(changed=True, msg='matched pacnew {0}, kept old version'.format(path))
+        elif keep == 'new':
+            if realOld != 'NONE':
+                os.unlink(path)
+            if realNew != 'NONE':
+                os.rename(path + '.pacnew', path)
+            module.exit_json(changed=True, msg='matched pacnew {0}, kept new version'.format(path))
 
-  if ( testNew is None or realNew == testNew ) and (testOld is None or realOld == testOld ):
-    if keep == 'old':
-      os.unlink(path + '.pacnew')
-      module.exit_json(changed=True, msg='matched pacnew {0}, kept old version'.format(path))
-    elif keep == 'new':
-      os.unlink(path)
-      os.rename(path + '.pacnew', path)
-      module.exit_json(changed=True, msg='matched pacnew {0}, kept new version'.format(path))
-
-  module.exit_json(changed=False, msg='pacnew found, but did not match hashes')
+    module.exit_json(changed=False, msg='pacnew found, but did not match hashes')
 
 def check_all(module):
   pacnews = [ x[:-7] for x in sh.find('/','-name', '*.pacnew*').stdout.split() ]

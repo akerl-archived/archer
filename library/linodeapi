@@ -42,10 +42,10 @@ def main():
     except ApiError:
       module.fail_json(msg='credentials not accepted')
 
-  try:
-    myApiCall = getattr(myApi, params['method'])
-  except AttributeError:
-    module.fail_json(msg='invalid api method (should never happen)')
+  #try:
+  myApiCall = getattr(myApi, params['method'])
+  #except AttributeError:
+  #  module.fail_json(msg='invalid api method (should never happen)')
 
   callParams = params.copy()
 

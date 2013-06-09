@@ -20,32 +20,32 @@
 import random
 
 keyDefinitions = {
-  'base64'    : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
-  'base32'    : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567',
-  'alpha'     : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
-  'alphalow'  : 'abcdefghijklmnopqrstuvwxyz',
-  'alphaup'   : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-  'alphanum'  : 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890',
-  'numeric'   : '1234567890',
+    'base64'    : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
+    'base32'    : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567',
+    'alpha'     : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+    'alphalow'  : 'abcdefghijklmnopqrstuvwxyz',
+    'alphaup'   : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    'alphanum'  : 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890',
+    'numeric'   : '1234567890',
 }
 
 def main():
-  module = AnsibleModule(
-            argument_spec = dict(
-              length        = dict(default='24'),
-              keyspace      = dict(default='alphanum')
-            )
-          )
-  length = int(module.params['length'])
-  keyspace = module.params['keyspace']
-  if keyspace in keyDefinitions:
-    keyspace = keyDefinitions[keyspace]
+    module = AnsibleModule(
+        argument_spec = dict(
+            length        = dict(default='24'),
+            keyspace      = dict(default='alphanum')
+        )
+    )
+    length = int(module.params['length'])
+    keyspace = module.params['keyspace']
+    if keyspace in keyDefinitions:
+        keyspace = keyDefinitions[keyspace]
 
-  token = ''
-  while len(token) < length:
-      token += random.choice(keyspace)
+    token = ''
+    while len(token) < length:
+        token += random.choice(keyspace)
 
-  module.exit_json(changed=False, msg='Generated token', token=token)
+    module.exit_json(changed=False, msg='Generated token', token=token)
 
 # this is magic, see lib/ansible/module_common.py
 #<<INCLUDE_ANSIBLE_MODULE_COMMON>>

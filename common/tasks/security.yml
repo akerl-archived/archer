@@ -1,0 +1,90 @@
+---
+- hosts: cluster
+  vars_files:
+    - ../vars/common.yml
+  tasks:
+    - name: Drop in sshd_config
+      copy: >
+        src=../files/sshd_config
+        dest=/etc/ssh/sshd_config
+    - name: Clone admin key repo
+      git: >
+        dest=/opt/keys
+        repo='git://github.com/akerl/keys.git'
+    - name: Populate admin keys
+      assemble:
+        src=/opt/keys
+        dest=/home/{{admin.username}}/.ssh/authorized_keys
+        owner={{admin.username}}
+        group=users
+        mode=0600
+
+    - name: Clone google auth
+      git: >
+        dest=/opt/google-authenticator
+        repo='git://github.com/akerl/google-authenticator.git'
+    - name: Build google auth
+      command: >
+        make install
+        chdir=/opt/google-authenticator
+        creates=/lib/security/pam_google_authenticator.so
+    - name: Generate two factor secret key
+      tokengen: length=16 keyspace=base32
+      register: twofa
+    - name: Generate two factor config
+      template: >
+        src=../templates/2fa.j2
+        dest=/root/.2fa
+        mode=0600
+    - name: Drop in su PAM config
+      copy: >
+        src=../files/su
+        dest=/etc/pam.d/su
+    - name: Drop in su-l PAM config
+      copy: >
+        src=../files/su
+        dest=/etc/pam.d/su-l
+    - name: Drop in system-auth PAM config
+      copy: >
+        src=../files/system-auth
+        dest=/etc/pam.d/system-auth
+
+    - name: Install fwknop
+      command: >
+        /usr/local/bin/packer -S fwknop --noconfirm
+        creates=/usr/bin/fwknop
+    - name: Install gpg1
+      shell: >
+        /usr/local/bin/packer -S gnupg1 --noconfirm > /dev/null
+        creates=/usr/bin/gpg1
+    - name: Link gpg1 as gpg
+      file: >
+        state=link
+        src=/usr/bin/gpg1
+        path=/usr/bin/gpg
+    - name: Generate system gpg key
+      gpgkey_gen: >
+        length=2048
+        expiry=0
+        name='{{name}}'
+        comment={{inventory_hostname}}
+        email=admin@{{inventory_hostname}}.{{domain}}
+        replaceOld=yes
+      register: new_key
+    - name: Trust admin key
+      gpgkey_sign: '{{gpg_key_id}} {{new_key.passphrase}}'
+    - name: Generate fwknop access file
+      template: >
+        src=../templates/fwknop.j2
+        dest=/etc/fwknop/access.conf
+    - name: Switch fwknop capture port
+      lineinfile: >
+        dest=/etc/fwknop/fwknopd.conf
+        regexp='#*PCAP_FILTER\s*udp\s*port\s*\d+\s*;'
+        line='PCAP_FILTER udp port 465;'
+    - name: Enable fwknop
+      service: >
+        name=fwknopd
+        enabled=yes
+...
+

@@ -1,12 +1,27 @@
 ---
-- include: tasks/kickstart.yml
+- include: common/tasks/credentials.yml
 
-- include: tasks/generic.yml
+- include: common/tasks/kickstart.yml
 
-- include: roles/nameserver.yml
-- include: roles/webserver.yml
-- include: roles/irc.yml
+- include: common/tasks/packages.yml
+- include: common/tasks/networking.yml
+- include: common/tasks/smtp.yml
+- include: common/tasks/misc.yml
+- include: common/tasks/users.yml
+- include: common/tasks/env.yml
+- include: common/tasks/security.yml
+- include: common/tasks/backups.yml
+- include: common/tasks/kernel.yml
 
-- include: tasks/finalize.yml
+- include: common/tasks/platform.yml
+
+- include: common/tasks/local.yml
+
+- hosts: cluster
+  tasks:
+    - name: Pause before reboot
+      pause: prompt="Press enter to reboot the server"
+    - name: Schedule the reboot
+      command: shutdown -r
 ...
 

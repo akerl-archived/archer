@@ -1,0 +1,8 @@
+#%PAM-1.0
+auth        sufficient  pam_rootok.so
+auth        required    pam_wheel.so use_uid
+auth        required    pam_unix.so
+auth        required    pam_google_authenticator.so secret=~/.2fa
+account     required    pam_unix.so
+session     required    pam_unix.so
+

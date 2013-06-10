@@ -15,7 +15,7 @@
         generate_ssh_key=yes
         ssh_key_bits=8096
         ssh_key_comment=root@{{inventory_hostname}}
-        shell=/bin/zsh
+        shell=/usr/bin/zsh
     - name: Add admin user
       user: >
         name={{admin.username}}
@@ -24,7 +24,7 @@
         ssh_key_bits=8096
         ssh_key_comment={{admin.username}}@{{inventory_hostname}}
         groups='wheel,remote'
-        shell=/bin/zsh
+        shell=/usr/bin/zsh
 
     - name: Preload known_hosts for root
       copy: >

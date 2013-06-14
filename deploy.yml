@@ -17,6 +17,19 @@
 
 - include: common/tasks/local.yml
 
+- hosts: web
+  roles:
+    - web
+- hosts: dns
+  roles:
+    - dns
+- hosts: irc
+  roles:
+    - irc
+- hosts: kernel
+  roles:
+    - kernel
+
 - hosts: cluster
   tasks:
     - name: Pause before reboot

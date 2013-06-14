@@ -13,6 +13,7 @@ files:
     - /etc/vconsole.conf
     - /boot
     - /etc/systemd/system/multi-user.target.wants/netcfg.service
+    - /etc/ppp
 resolvers:
     - '8.8.8.8'
     - '8.8.4.4'

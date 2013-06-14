@@ -138,5 +138,13 @@ pacnews:
     new: c27c0ae5797582f47f8db1368fc730658c8d4cfe
     old: 67ca9a323c979ee93c4c1a5592b02c89564d630e
     keep: new
+  - path: /etc/ppp/ip-up.d/00-dns.sh
+    new: ANY
+    old: NONE
+    keep: new
+  - path: /etc/ppp/ip-down.d/00-dns.sh
+    new: ANY
+    old: NONE
+    keep: new
 ...
 

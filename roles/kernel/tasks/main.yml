@@ -1,0 +1,5 @@
+---
+- name: Update kernel config repo to have read/write remote
+  command: 'git remote set-url origin git@github.com:akerl/kernels.git chdir=/opt/roller/configs'
+...
+

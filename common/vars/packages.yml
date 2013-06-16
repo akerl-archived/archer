@@ -5,11 +5,13 @@ modules:
         - requests
         - pyyaml
         - beautifulsoup4
+        - 'git+git://github.com/Lokaltog/powerline.git'
     python3:
         - sh
         - requests
         - pyyaml
         - beautifulsoup4
+        - 'git+git://github.com/Lokaltog/powerline.git'
 packages:
     add:
         - autoconf

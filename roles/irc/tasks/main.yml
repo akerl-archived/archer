@@ -3,6 +3,12 @@
   pacman: state=present name=weechat
 - name: Generate client SSL certificate
   shell: >
-    su - {{irc_user}} -c 'echo "{{certificate_string}}" | openssl req -nodes -newkey rsa:2048 -keyout ~/irc.key -x509 -days 3650 -out ~/irc.cert'
+    su - {{irc_user}} -c 'echo "{{certificate_string}}" | openssl req -nodes -newkey rsa:2048 -keyout ~/.weechat/ssl/client.pem -x509 -days 3650 -out ~/.weechat/ssl/client.pem'
+- name: Make log directory
+  file: >
+    state=directory
+    path=/opt/weechat/
+    owner={{irc_user}}
+    group={{irc_user}}
 ...
 

@@ -19,6 +19,7 @@
 
 import sh
 
+
 def check_pacnew(module, path, testNew, testOld, keep):
     if os.path.isfile(path):
         realOld = str(sh.sha1sum(path).split()[0])
@@ -29,52 +30,66 @@ def check_pacnew(module, path, testNew, testOld, keep):
     else:
         realNew = 'NONE'
 
-    if ( testNew is None or realNew == testNew ) and (testOld is None or realOld == testOld ):
+    if (testNew is None or realNew == testNew) and (testOld is None or realOld == testOld):
         if keep == 'old':
             if realNew != 'NONE':
                 os.unlink(path + '.pacnew')
-            module.exit_json(changed=True, msg='matched pacnew {0}, kept old version'.format(path))
+            module.exit_json(
+                changed=True,
+                msg='matched pacnew {0}, kept old version'.format(path)
+            )
         elif keep == 'new':
             if realOld != 'NONE':
                 os.unlink(path)
             if realNew != 'NONE':
                 os.rename(path + '.pacnew', path)
-            module.exit_json(changed=True, msg='matched pacnew {0}, kept new version'.format(path))
+            module.exit_json(
+                changed=True,
+                msg='matched pacnew {0}, kept new version'.format(path)
+            )
 
-    module.exit_json(changed=False, msg='pacnew found, but did not match hashes')
+    module.exit_json(
+        changed=False,
+        msg='pacnew found, but did not match hashes'
+    )
+
 
 def check_all(module):
-  pacnews = [ x[:-7] for x in sh.find('/','-name', '*.pacnew*').stdout.split() ]
-  if len(pacnews):
-    module.fail_json(msg='unhandled pacnews found: {0}'.format(pacnews))
-  else:
-    module.exit_json(changed=False, msg='no unhandled pacnews')
-    
-def main():
-  module = AnsibleModule(
-            argument_spec = dict(
-              path          = dict(default=''),
-              new           = dict(default=None),
-              old           = dict(default=None),
-              keep          = dict(default='old', choices=['old', 'new']),
-              check_all     = dict(default='no', choices=['yes','no']),
-            )
-          )
+    pacnews = [
+        x[:-7]
+        for x in sh.find('/', '-name', '*.pacnew*').stdout.split()
+    ]
+    if len(pacnews):
+        module.fail_json(msg='unhandled pacnews found: {0}'.format(pacnews))
+    else:
+        module.exit_json(changed=False, msg='no unhandled pacnews')
 
-  if module.params['check_all'] == 'yes':
-    check_all(module)
-  else:
-    path  = module.params['path']
-    new   = module.params['new']
-    old   = module.params['old']
-    if new == 'ANY':
-      new = None
-    if old == 'ANY':
-      old = None
-    keep  = module.params['keep']
-    if path == '' or new == '' or old == '':
-      module.fail_json('required params not provided')
-    check_pacnew(module, path, new, old, keep)
+
+def main():
+    module = AnsibleModule(
+        argument_spec={
+            path={default=''},
+            new={default=None},
+            old={default=None},
+            keep={default='old', choices=['old', 'new']},
+            check_all={default='no', choices=['yes', 'no']},
+        }
+    )
+
+    if module.params['check_all'] == 'yes':
+        check_all(module)
+    else:
+        path = module.params['path']
+        new = module.params['new']
+        old = module.params['old']
+        if new == 'ANY':
+            new = None
+        if old == 'ANY':
+            old = None
+        keep = module.params['keep']
+        if path == '' or new == '' or old == '':
+            module.fail_json('required params not provided')
+        check_pacnew(module, path, new, old, keep)
 
 
 # this is magic, see lib/ansible/module_common.py

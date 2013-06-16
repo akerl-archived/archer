@@ -20,14 +20,15 @@
 from linode.api import Api, ApiError
 from time import sleep
 
+
 def main():
     module = AnsibleModule(
-        argument_spec = dict(
-            linodeid = dict(required=True),
-        ),
-        required_together = [['username','password']],
-        required_one_of = [['username','apikey']],
-        mutually_exclusive = [['apikey','password']],
+        argument_spec={
+            linodeid={required=True},
+        },
+        required_together=[['username', 'password']],
+        required_one_of=[['username', 'apikey']],
+        mutually_exclusive=[['apikey', 'password']],
         check_invalid_arguments=False,
     )
     params = module.params
@@ -39,13 +40,16 @@ def main():
     else:
         myApi = Api()
         try:
-            myApi.user_getapikey(username=params['username'], password=params['password'])
+            myApi.user_getapikey(
+                username=params['username'],
+                password=params['password']
+            )
         except ApiError:
             module.fail_json(msg='credentials not accepted')
 
     while True:
         myResult = myApi.linode_job_list(linodeid=params['linodeid'])
-        active_jobs = [ x for x in myResult if x['HOST_FINISH_DT'] == '' ]
+        active_jobs = [x for x in myResult if x['HOST_FINISH_DT'] == '']
         if not len(active_jobs):
             break
         sleep(2)

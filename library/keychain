@@ -20,13 +20,14 @@
 import sh
 import passlib.hash
 
+
 def main():
     module = AnsibleModule(
-        argument_spec = dict(
-            keychain = dict(default='login'),
-            service = dict(required=True),
-            crypt = dict(default='', choices=['', 'sha512']),
-        ),
+        argument_spec={
+            keychain={default='login'},
+            service={required=True},
+            crypt={default='', choices=['', 'sha512']},
+        }
     )
 
     keychain = module.params['keychain'] + '.keychain'
@@ -34,18 +35,33 @@ def main():
     crypt = module.params['crypt']
 
     try:
-        result = sh.security('find-generic-password', '-g', '-s', service, keychain)
+        result = sh.security(
+            'find-generic-password',
+            '-g',
+            '-s',
+            service,
+            keychain
+        )
     except:
         module.fail_json(msg='keychain call failed')
 
-    username = [x.split('=', 1)[1][1:-1] for x in result.stdout.splitlines() if '"acct"' in x][0]
+    username = [
+        x.split('=', 1)[1][1:-1]
+        for x in result.stdout.splitlines()
+        if '"acct"' in x
+    ][0]
     password = result.stderr.split('"')[-2]
 
     if len(crypt):
         if crypt == 'sha512':
             password = passlib.hash.sha512_crypt.encrypt(password)
 
-    module.exit_json(changed=False, msg='Success', username=username, password=password)
+    module.exit_json(
+        changed=False,
+        msg='Success',
+        username=username,
+        password=password
+    )
 
 # this is magic, see lib/ansible/module_common.py
 #<<INCLUDE_ANSIBLE_MODULE_COMMON>>

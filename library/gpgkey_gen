@@ -21,9 +21,7 @@ import sh
 import tempfile
 import base64
 
-keyTemplate = \
-'''\
-Key-Type: RSA 
+keyTemplate = '''Key-Type: RSA
 Key-Length: {length}
 Key-Usage: encrypt
 Passphrase: {passphrase}
@@ -34,54 +32,71 @@ Expire-Date: {expiry}
 %commit
 '''
 
+
 def getKeyID(name, comment, email):
-  allKeys = [ ' '.join(x.split()[1:]) for x in sh.gpg('--list-keys').stdout.split('\n') ]
-  thisKey = '{0} ({1}) <{2}>'.format(name, comment, email)
-  for index, key in enumerate(allKeys):
-    if key == thisKey:
-      return allKeys[index-1].split()[0].split('/')[1]
-  return None
+    allKeys = [
+        ' '.join(x.split()[1:])
+        for x in sh.gpg('--list-keys').stdout.split('\n')
+    ]
+    thisKey = '{0} ({1}) <{2}>'.format(name, comment, email)
+    for index, key in enumerate(allKeys):
+        if key == thisKey:
+            return allKeys[index-1].split()[0].split('/')[1]
+    return None
+
 
 def main():
-  module = AnsibleModule(
-            argument_spec = dict(
-              name          = dict(required=True),
-              comment       = dict(required=True),
-              email         = dict(required=True),
-              expiry        = dict(default='0'),
-              length        = dict(default='2048'),
-              passphrase    = dict(default=''),
-              replaceOld    = dict(default='no', choices=['yes','no']),
+    module = AnsibleModule(
+        argument_spec={
+            name={required=True},
+            comment={required=True},
+            email={required=True},
+            expiry={default='0'},
+            length={default='2048'},
+            passphrase={default=''},
+            replaceOld={default='no', choices=['yes', 'no']},
+        }
+    )
+
+    params = module.params
+
+    existingKey = getKeyID(params['name'], params['comment'], params['email'])
+    if existingKey is not None:
+        if params['replaceOld'] == 'no':
+            module.exit_json(
+                changed=False,
+                msg='key already exists',
+                keyid=existingKey,
+                passphrase=''
             )
-          )
+        else:
+            fingerprint = tuple(
+                x.rsplit('=', 1)[-1].translate(None, ' ')
+                for x in sh.gpg('--fingerprint', existingKey).stdout.split('\n')
+                if x.find('Key fingerprint') != -1
+            )[0]
+            sh.gpg('--delete-secret-and-public-key', '--batch', fingerprint)
 
-  params = module.params
+    if params['passphrase'] == '':
+        params['passphrase'] = base64.b64encode(os.urandom(100))[:-2].translate(None, '+/')[0:32]
 
-  existingKey = getKeyID(params['name'], params['comment'], params['email'])
-  if existingKey is not None:
-    if params['replaceOld'] == 'no':
-      module.exit_json(changed=False, msg='key already exists', keyid=existingKey, passphrase='')
-    else:
-      fingerprint = tuple( x.rsplit('=',1)[-1].translate(None, ' ') 
-        for x in sh.gpg('--fingerprint', existingKey).stdout.split('\n') 
-          if x.find('Key fingerprint') != -1 )[0]
-      sh.gpg('--delete-secret-and-public-key', '--batch', fingerprint)
+    _, tmpfile = tempfile.mkstemp()
+    with open(tmpfile, 'w') as handle:
+        handle.write(keyTemplate.format(**params))
+    try:
+        sh.gpg('--gen-key', '--batch', tmpfile)
+    except:
+        module.fail_json(msg='failed to create gpg key')
 
-  if params['passphrase'] == '':
-    params['passphrase'] = base64.b64encode(os.urandom(100))[:-2].translate(None,'+/')[0:32]
-
-  _, tmpfile = tempfile.mkstemp()
-  with open(tmpfile, 'w') as handle:
-    handle.write(keyTemplate.format(**params))
-  try:
-    sh.gpg('--gen-key', '--batch', tmpfile)
-  except:
-    module.fail_json(msg='failed to create gpg key')
-
-  newKey = getKeyID(params['name'], params['comment'], params['email'])
-  if newKey is None:
-    module.fail_json(msg='generation succeeded but cannot locate new keyid')
-  module.exit_json(changed=True, msg='created new key', keyid=newKey, passphrase=params['passphrase'])
+    newKey = getKeyID(params['name'], params['comment'], params['email'])
+    if newKey is None:
+        module.fail_json(msg='generation succeeded but cannot locate new keyid')
+    module.exit_json(
+        changed=True,
+        msg='created new key',
+        keyid=newKey,
+        passphrase=params['passphrase']
+    )
 
 
 # this is magic, see lib/ansible/module_common.py

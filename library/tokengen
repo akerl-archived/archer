@@ -20,21 +20,22 @@
 import random
 
 keyDefinitions = {
-    'base64'    : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
-    'base32'    : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567',
-    'alpha'     : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
-    'alphalow'  : 'abcdefghijklmnopqrstuvwxyz',
-    'alphaup'   : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-    'alphanum'  : 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890',
-    'numeric'   : '1234567890',
+    'base64': 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
+    'base32': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567',
+    'alpha': 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+    'alphalow': 'abcdefghijklmnopqrstuvwxyz',
+    'alphaup': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    'alphanum': 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890',
+    'numeric': '1234567890',
 }
+
 
 def main():
     module = AnsibleModule(
-        argument_spec = dict(
-            length        = dict(default='24'),
-            keyspace      = dict(default='alphanum')
-        )
+        argument_spec={
+            length={default='24'},
+            keyspace={default='alphanum'}
+        }
     )
     length = int(module.params['length'])
     keyspace = module.params['keyspace']

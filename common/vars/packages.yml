@@ -73,6 +73,7 @@ packages:
         - systemd-sysvcompat
         - tar
         - tcpdump
+        - tree
         - tmux
         - vim
         - wget

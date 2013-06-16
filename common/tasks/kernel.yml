@@ -13,5 +13,7 @@
         repo='git://github.com/akerl/kernels.git'
     - name: Roll the kernel
       command: /opt/roller/roller.py -k {{kernel_version}} -c {{kernel_version}} -r {{kernel_revision}}
+    - name: Clean up kernel archives
+      command: /opt/roller/cleanup.py
 ...
 

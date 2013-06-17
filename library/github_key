@@ -1,0 +1,83 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# (c) 2013, akerl
+
+import requests
+import json
+
+base_url = 'https://api.github.com/'
+
+
+def main():
+    module = AnsibleModule(
+        argument_spec={
+            source={default='~/.ssh/id_rsa.pub'},
+            username={required=True},
+            password={required=True},
+            repo={default=''},
+        }
+    )
+    source = module.params['source']
+    username = module.params['username']
+    password = module.params['password']
+    repo = module.params['repo']
+    creds = (username, password)
+
+    try:
+        requests.get(
+            base_url,
+            auth=creds
+        ).raise_for_status()
+    except:
+        module.fail_json(msg='creds not accepted')
+
+    with open(os.path.expanduser(source)) as handle:
+        contents = handle.readlines()[0].rsplit(None, 1)
+    key = contents[0]
+    title = contents[1]
+    new_key = json.dumps({'title': title, 'key': key})
+
+    if len(repo):
+        key_url = base_url + 'repos/{0}/{1}/keys'.format(username, repo)
+    else:
+        key_url = base_url + 'user/keys'
+
+    try:
+        key_request = requests.get(key_url, auth=creds)
+        key_request.raise_for_status()
+        current_keys = key_request.json()
+    except:
+        module.fail_json(msg='failed to get current github keys')
+
+    for this_key in current_keys:
+        if this_key['title'] == title:
+            if this_key['key'] != key:
+                try:
+                    requests.patch(
+                        key_url + '/' + this_key['id'],
+                        auth=creds,
+                        data=new_key
+                    ).raise_for_status()
+                except:
+                    module.fail_json(msg='failed to patch old key')
+                module.exit_json(changed=True, msg='updated old key')
+            else:
+                module.exit_json(changed=False, msg='key already on github')
+
+    try:
+        tmp = requests.post(
+            key_url,
+            auth=creds,
+            data=new_key
+        )
+        tmp.raise_for_status()
+    except:
+        module.fail_json(msg='failed to post new key {0}'.format(tmp.text))
+    module.exit_json(changed=True, msg='new key pushed to github')
+
+# this is magic, see lib/ansible/module_common.py
+#<<INCLUDE_ANSIBLE_MODULE_COMMON>>
+
+main()
+

@@ -55,7 +55,7 @@ def main():
             if this_key['key'] != key:
                 try:
                     requests.patch(
-                        key_url + '/' + this_key['id'],
+                        key_url + '/' + str(this_key['id']),
                         auth=creds,
                         data=new_key
                     ).raise_for_status()

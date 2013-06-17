@@ -90,20 +90,22 @@ def main():
     except:
         module.fail_json(msg='Failed to parse rules file')
 
-    if not create_table and table not in ruleset:
-        module.fail_json(msg='Table not found')
-    else:
-        ruleset[table] = {}
-    if not create_chain and chain not in ruleset[table]:
-        module.fail_json(msg='Chain not found'}
-    else:
-        ruleset[table][chain] = {'policy': 'ACCEPT [0:0]', 'rules': []}
+    if table not in ruleset:
+        if create_table:
+            ruleset[table] = {}
+        else:
+            module.fail_json(msg='Table not found')
+    if chain not in ruleset[table]:
+        if create_chain:
+            ruleset[table][chain] = {'policy': 'ACCEPT [0:0]', 'rules': []}
+        else:
+            module.fail_json(msg='Chain not found')
     if rule in ruleset[table][chain]['rules']:
         module.exit_json(changed=False, msg='Rule already included')
     else:
         ruleset[table][chain]['rules'].append(rule)
 
-    with open(path) as handle:
+    with open(path, 'w') as handle:
         handle.write(dump_rules(ruleset))
 
     module.exit_json(msg='Rule added')

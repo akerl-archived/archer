@@ -28,7 +28,6 @@
   with_items:
     - udp
     - tcp
-  tags: test
 - name: Punch ip6tables holes for port 53
   iptables: >
     path=/etc/iptables/ip6tables.rules
@@ -36,5 +35,4 @@
   with_items:
     - udp
     - tcp
-  tags: test
 

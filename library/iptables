@@ -1,0 +1,115 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# (c) 2013, akerl
+# Written by akerl
+#
+# This module is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This software is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this software.  If not, see <http://www.gnu.org/licenses/>.
+
+import os
+
+TABLE_ORDER = ['nat', 'mangle', 'filter']
+CHAIN_ORDER = ['PREROUTING', 'INPUT', 'FORWARD', 'OUTPUT', 'POSTROUTING']
+
+
+def load_rules(lines):
+    ruleset = {}
+    for line in lines:
+        line = line.rstrip()
+        if not len(line):
+            continue
+        elif line[0] == '*':
+            table = line[1:]
+            ruleset.setdefault(table, {})
+            continue
+        elif line[0] == ':':
+            (chain, policy) = line[1:].split(None,1)
+            ruleset[table].setdefault(chain, {'policy': policy, 'rules': []})
+            continue
+        elif line[0] == '-':
+            (_, chain, rule) = line.split(None, 2)
+            ruleset[table][chain]['rules'].append(rule)
+    return ruleset
+
+def get_ordered_set(template, actual):
+    ordered_set = template[:] # make a copy
+    for item in ordered_set:
+        if item not in actual:
+            ordered_set.remove(item)
+    for item in actual:
+        if item not in ordered_set:
+            ordered_set.append(item)
+    return ordered_set
+
+def dump_rules(ruleset):
+    lines = []
+    tables_to_parse = get_ordered_set(TABLE_ORDER, ruleset.keys())
+    for table in tables_to_parse:
+        lines.append('*' + table)
+        chains_to_parse = get_ordered_set(CHAIN_ORDER, ruleset[table].keys())
+        for chain in chains_to_parse:
+            lines.append(':{0} {1}'.format(chain, ruleset[table][chain]['policy']))
+        for chain in chains_to_parse:
+            for rule in ruleset[table][chain]['rules']:
+                lines.append('-A {0} {1}'.format(chain, rule))
+        lines.append('COMMIT')
+    return '\n'.join(lines) + '\n'
+
+def main():
+    module = AnsibleModule(
+        argument_spec={
+            path={default='/etc/iptables/iptables.rules'},
+            table={default='filter'},
+            chain={default='input'},
+            rule={required=True},
+            create_table={default=False},
+            create_chain={default=False},
+        }
+    )
+    path = os.path.expanduser(module.params['path'])
+    table = module.params['table']
+    chain = module.params['chain'].upper()
+    rule = module.params['rule']
+    create_table = module.params['create_table']
+    create_chain = module.params['create_chain']
+
+    try:
+        with open(path) as handle:
+            ruleset = load_rules(handle.readlines())
+    except:
+        module.fail_json(msg='Failed to parse rules file')
+
+    if not create_table and table not in ruleset:
+        module.fail_json(msg='Table not found')
+    else:
+        ruleset[table] = {}
+    if not create_chain and chain not in ruleset[table]:
+        module.fail_json(msg='Chain not found'}
+    else:
+        ruleset[table][chain] = {'policy': 'ACCEPT [0:0]', 'rules': []}
+    if rule in ruleset[table][chain]['rules']:
+        module.exit_json(changed=False, msg='Rule already included')
+    else:
+        ruleset[table][chain]['rules'].append(rule)
+
+    with open(path) as handle:
+        handle.write(dump_rules(ruleset))
+
+    module.exit_json(msg='Rule added')
+
+# this is magic, see lib/ansible/module_common.py
+#<<INCLUDE_ANSIBLE_MODULE_COMMON>>
+
+main()
+

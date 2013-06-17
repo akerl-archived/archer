@@ -13,6 +13,6 @@
     - name: Upgrade packages
       raw: pacman -Syu --noconfirm
     - name: Install python2
-      raw: pacman -Syu --noconfirm --needed python2 python2-pip
+      raw: pacman -S --noconfirm --needed python2 python2-pip
 ...
 

@@ -1,0 +1,40 @@
+---
+- name: Update deploy key for DNS repo
+  github_key: >
+    username={{github.username}}
+    password={{github.password}}
+    repo=dns
+- name: Clone DNS repo
+  git: >
+    dest='/opt/dns'
+    repo='git@github.com:akerl/dns.git'
+- name: Install NSD
+  pacman: state=present name=nsd
+- name: Symlink NSD config into /etc
+  file: >
+    state=link
+    path=/etc/nsd/nsd.conf
+    src=/opt/dns/nsd.conf
+- name: Build initial NSD db
+  command: nsdc rebuild
+- name: Enable and start NSD
+  service: >
+    name=nsd
+    state=restarted
+    enabled=yes
+- name: Punch iptables holes for port 53
+  iptables: >
+    rule='-p {{item}} --dport 53 -j ACCEPT'
+  with_items:
+    - udp
+    - tcp
+  tags: test
+- name: Punch ip6tables holes for port 53
+  iptables: >
+    path=/etc/iptables/ip6tables.rules
+    rule='-p {{item}} --dport 53 -j ACCEPT'
+  with_items:
+    - udp
+    - tcp
+  tags: test
+

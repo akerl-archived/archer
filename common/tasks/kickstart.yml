@@ -11,8 +11,6 @@
     - name: Disable SyncFirst for pacman
       raw: "sed -i 's/^\\(SyncFirst.*\\)/#\\1/' /etc/pacman.conf"
     - name: Upgrade packages
-      raw: pacman -Syu --noconfirm
-    - name: Install python2
-      raw: pacman -S --noconfirm --needed python2 python2-pip
+      raw: pacman -Syu --noconfirm --needed python2 python2-pip git
 ...
 

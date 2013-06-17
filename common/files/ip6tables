@@ -12,6 +12,5 @@ COMMIT
 -A INPUT -p ipv6-icmp -j ACCEPT
 -A INPUT -s ::1/128 -i lo -j ACCEPT
 -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-# Services go here
 COMMIT
 

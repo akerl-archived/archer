@@ -10,12 +10,12 @@ import urllib
 
 def main():
     module = AnsibleModule(
-        argument_spec={
-            source={default='~/.ssh/id_rsa.pub'},
-            username={required=True},
-            password={required=True},
-            repo={required=True},
-        }
+        argument_spec=dict(
+            source=dict(default='~/.ssh/id_rsa.pub'),
+            username=dict(required=True),
+            password=dict(required=True),
+            repo=dict(required=True),
+        )
     )
 
     username = module.params['username']

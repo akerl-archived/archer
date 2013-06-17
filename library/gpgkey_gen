@@ -47,15 +47,15 @@ def getKeyID(name, comment, email):
 
 def main():
     module = AnsibleModule(
-        argument_spec={
-            name={required=True},
-            comment={required=True},
-            email={required=True},
-            expiry={default='0'},
-            length={default='2048'},
-            passphrase={default=''},
-            replaceOld={default='no', choices=['yes', 'no']},
-        }
+        argument_spec=dict(
+            name=dict(required=True),
+            comment=dict(required=True),
+            email=dict(required=True),
+            expiry=dict(default='0'),
+            length=dict(default='2048'),
+            passphrase=dict(default=''),
+            replaceOld=dict(default='no', choices=['yes', 'no']),
+        )
     )
 
     params = module.params

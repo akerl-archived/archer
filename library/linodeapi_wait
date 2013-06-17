@@ -23,9 +23,9 @@ from time import sleep
 
 def main():
     module = AnsibleModule(
-        argument_spec={
-            linodeid={required=True},
-        },
+        argument_spec=dict(
+            linodeid=dict(required=True),
+        ),
         required_together=[['username', 'password']],
         required_one_of=[['username', 'apikey']],
         mutually_exclusive=[['apikey', 'password']],

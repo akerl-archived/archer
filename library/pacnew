@@ -67,13 +67,13 @@ def check_all(module):
 
 def main():
     module = AnsibleModule(
-        argument_spec={
-            path={default=''},
-            new={default=None},
-            old={default=None},
-            keep={default='old', choices=['old', 'new']},
-            check_all={default='no', choices=['yes', 'no']},
-        }
+        argument_spec=dict(
+            path=dict(default=''),
+            new=dict(default=None),
+            old=dict(default=None),
+            keep=dict(default='old', choices=['old', 'new']),
+            check_all=dict(default='no', choices=['yes', 'no']),
+        )
     )
 
     if module.params['check_all'] == 'yes':

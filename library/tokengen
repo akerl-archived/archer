@@ -32,10 +32,10 @@ keyDefinitions = {
 
 def main():
     module = AnsibleModule(
-        argument_spec={
-            length={default='24'},
-            keyspace={default='alphanum'}
-        }
+        argument_spec=dict(
+            length=dict(default='24'),
+            keyspace=dict(default='alphanum')
+        )
     )
     length = int(module.params['length'])
     keyspace = module.params['keyspace']

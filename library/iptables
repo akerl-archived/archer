@@ -68,14 +68,14 @@ def dump_rules(ruleset):
 
 def main():
     module = AnsibleModule(
-        argument_spec={
-            path={default='/etc/iptables/iptables.rules'},
-            table={default='filter'},
-            chain={default='input'},
-            rule={required=True},
-            create_table={default=False},
-            create_chain={default=False},
-        }
+        argument_spec=dict(
+            path=dict(default='/etc/iptables/iptables.rules'),
+            table=dict(default='filter'),
+            chain=dict(default='input'),
+            rule=dict(required=True),
+            create_table=dict(default=False),
+            create_chain=dict(default=False),
+        )
     )
     path = os.path.expanduser(module.params['path'])
     table = module.params['table']

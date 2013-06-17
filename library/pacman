@@ -117,18 +117,18 @@ def update(module):
 
 def main():
     module = AnsibleModule(
-        argument_spec={
-            state={
+        argument_spec=dict(
+            state=dict(
                 default='present',
                 choices=['present', 'absent', 'custom'],
-            },
-            update={
+            ),
+            update=dict(
                 default='no',
                 choices=['yes', 'no'],
-            },
-            name={default=''},
-            options={default=''},
-        }
+            ),
+            name=dict(default=''),
+            options=dict(default=''),
+        )
     )
     pacman = module.get_bin_path('pacman', True, [])
 

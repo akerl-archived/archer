@@ -11,12 +11,12 @@ base_url = 'https://api.github.com/'
 
 def main():
     module = AnsibleModule(
-        argument_spec={
-            source={default='~/.ssh/id_rsa.pub'},
-            username={required=True},
-            password={required=True},
-            repo={default=''},
-        }
+        argument_spec=dict(
+            source=dict(default='~/.ssh/id_rsa.pub'),
+            username=dict(required=True),
+            password=dict(required=True),
+            repo=dict(default=''),
+        )
     )
     source = module.params['source']
     username = module.params['username']

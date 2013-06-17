@@ -23,11 +23,11 @@ import passlib.hash
 
 def main():
     module = AnsibleModule(
-        argument_spec={
-            keychain={default='login'},
-            service={required=True},
-            crypt={default='', choices=['', 'sha512']},
-        }
+        argument_spec=dict(
+            keychain=dict(default='login'),
+            service=dict(required=True),
+            crypt=dict(default='', choices=['', 'sha512']),
+        )
     )
 
     keychain = module.params['keychain'] + '.keychain'

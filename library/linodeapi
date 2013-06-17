@@ -22,9 +22,9 @@ from linode.api import Api, ApiError
 
 def main():
     module = AnsibleModule(
-        argument_spec={
-            method={required=True},
-        },
+        argument_spec=dict(
+            method=dict(required=True),
+        ),
         required_together=[['username', 'password']],
         required_one_of=[['username', 'apikey']],
         mutually_exclusive=[['apikey', 'password']],

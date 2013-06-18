@@ -1,0 +1,7 @@
+#!/bin/bash
+
+cd /etc
+git commit -q -am "Auto: $(date)" > /dev/null
+git push -q localsave master > /dev/null
+cd
+

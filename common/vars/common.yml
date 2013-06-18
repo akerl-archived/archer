@@ -14,6 +14,7 @@ files:
     - /boot
     - /etc/systemd/system/multi-user.target.wants/netcfg.service
     - /etc/ppp
+    - /srv/ftp
 resolvers:
     - '8.8.8.8'
     - '8.8.4.4'

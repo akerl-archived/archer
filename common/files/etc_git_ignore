@@ -1,0 +1,15 @@
+fwknop/access.conf
+gshadow
+gshadow-
+ld.so.cache
+machine-id
+pacman.d/gnupg
+.pwd.lock
+shadow
+shadow-
+ssh/moduli
+ssh/ssh_host_dsa_key
+ssh/ssh_host_ecdsa_key
+ssh/ssh_host_key
+ssh/ssh_host_rsa_key
+ssl/certs

@@ -2,7 +2,7 @@
 domain: a-rwx.org
 name: Les Aker
 gpg_key_id: '43D0048F'
-kernel_version: '3.10-rc6'
+kernel_version: '3.10'
 kernel_revision: 1
 files:
   toremove:

@@ -73,6 +73,7 @@ packages:
         - syslog-ng
         - systemd-sysvcompat
         - tar
+        - tarsnap
         - tcpdump
         - tree
         - tmux

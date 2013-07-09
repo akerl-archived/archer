@@ -26,6 +26,9 @@ grego
 [kernel]
 grego
 
+[hyped]
+miro
+
 [all:vars]
 ansible_python_interpreter="/usr/bin/env python2"
 

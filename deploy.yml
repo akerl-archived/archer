@@ -29,6 +29,9 @@
 - hosts: kernel
   roles:
     - kernel
+- hosts: hyped
+  roles:
+    - hyped
 
 - hosts: cluster
   tasks:

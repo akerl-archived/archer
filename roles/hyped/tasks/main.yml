@@ -17,18 +17,19 @@
   file: >
     path=/opt/get-hyped
     state=directory
-    owner={{admin_user}}
-    group={{admin_user}}
+    owner={{admin.username}}
+    group={{admin.username}}
 - name: Clone get-hyped
   git: >
     repo='git://github.com/akerl/get-hyped'
-    path=/opt/get-hyped
+    dest=/opt/get-hyped
+- action: fail
 - name: Add cron job for get-hyped
   cron: >
     name=hyped
-    job='ruby /opt/get-hyped/get-hyped.rb -d /opt/get-hyped/music -l /home/{{admin_user}}/.hyped >/dev/null'
+    job='ruby /opt/get-hyped/get-hyped.rb -d /opt/get-hyped/music -l /home/{{admin.username}}/.hyped >/dev/null'
     cron_file=hyped
     minute=15
-    user={{admin_user}}
+    user={{admin.username}}
 ...
 

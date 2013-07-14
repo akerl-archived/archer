@@ -23,7 +23,6 @@
   git: >
     repo='git://github.com/akerl/get-hyped'
     dest=/opt/get-hyped
-- action: fail
 - name: Add cron job for get-hyped
   cron: >
     name=hyped

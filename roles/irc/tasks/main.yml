@@ -12,13 +12,12 @@
     group={{admin.username}}
 - name: Add deploy key for log repo
   github_key: >
+    source='/home/{{admin.username}}/.ssh/id_rsa.pub'
     username={{github.username}}
     password={{github.password}}
     repo=irclogs
 - name: Clone log repo
-  git: >
-    dest='/srv/irclogs'
-    repo='git@github.com:akerl/irclogs.git'
+  command: 'su - {{admin.username}} -c "git clone git@github.com:akerl/irclogs.git /srv/irclogs"'
 - name: Add cronjob for irc logs
   cron: >
     name=irclogs

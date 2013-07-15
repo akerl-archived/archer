@@ -4,8 +4,8 @@
 - name: Adjust /etc/gemrc
   lineinfile: >
     dest=/etc/gemrc
-    regexp='^gem: --\(no-\)*user-install$'
-    line='^gem: --no-user-install'
+    regexp='^gem: --(no-)?user-install$'
+    line='gem: --no-user-install'
 - name: Install gems
   gem: state=present name={{item}}
   with_items:

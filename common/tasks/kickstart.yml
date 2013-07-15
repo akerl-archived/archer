@@ -3,7 +3,7 @@
   gather_facts: no
   tasks:
     - name: Start haveged for entropy
-      raw: haveged
+      raw: 'while [ -z "$(pgrep haveged)" ] ; do haveged ; sleep 1 ; done'
     - name: Generate keys
       raw: pacman-key --init
     - name: Load archlinux keys

@@ -7,8 +7,17 @@
 - name: Make log directory
   file: >
     state=directory
-    path=/opt/weechat/
+    path=/srv/irclogs/
     owner={{irc_user}}
     group={{irc_user}}
+- name: Add deploy key for log repo
+  github_key: >
+    username={{github.username}}
+    password={{github.password}}
+    repo=irclogs
+- name: Clone log repo
+  git: >
+    dest='/srv/irclogs'
+    repo='git@github.com:akerl/irclogs.git'
 ...
 

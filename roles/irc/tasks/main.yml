@@ -3,13 +3,13 @@
   pacman: state=present name=weechat
 - name: Generate client SSL certificate
   shell: >
-    su - {{irc_user}} -c 'echo "{{certificate_string}}" | openssl req -nodes -newkey rsa:2048 -keyout ~/.weechat/ssl/client.pem -x509 -days 3650 -out ~/.weechat/ssl/client.pem'
+    su - {{admin.username}} -c 'echo "{{certificate_string}}" | openssl req -nodes -newkey rsa:2048 -keyout ~/.weechat/ssl/client.pem -x509 -days 3650 -out ~/.weechat/ssl/client.pem'
 - name: Make log directory
   file: >
     state=directory
     path=/srv/irclogs/
-    owner={{irc_user}}
-    group={{irc_user}}
+    owner={{admin.username}}
+    group={{admin.username}}
 - name: Add deploy key for log repo
   github_key: >
     username={{github.username}}
@@ -19,5 +19,12 @@
   git: >
     dest='/srv/irclogs'
     repo='git@github.com:akerl/irclogs.git'
+- name: Add cronjob for irc logs
+  cron: >
+    name=irclogs
+    job='cd /srv/weechat ; git add --all ; git commit -m "$(date)" ; git push origin master ; cd'
+    cron_file=irclogs
+    minute=35
+    user={{admin.username}}
 ...
 

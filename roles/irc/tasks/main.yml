@@ -21,7 +21,7 @@
 - name: Add cronjob for irc logs
   cron: >
     name=irclogs
-    job='cd /srv/weechat ; git add --all ; git commit -m "$(date)" ; git push origin master ; cd'
+    job='(cd /srv/irclogs ; git add --all ; git commit -m "$(date)" ; git push origin master ; cd) &>/dev/null'
     cron_file=irclogs
     minute=35
     user={{admin.username}}

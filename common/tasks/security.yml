@@ -18,6 +18,25 @@
         owner={{admin.username}}
         group=users
         mode=0600
+    - name: Fetch host SSH key
+      fetch: >
+        src=/etc/ssh/ssh_host_rsa_key.pub
+        dest=../../tmp/
+        fail_on_missing=yes
+    - name: Sign the host key
+      connection: local
+      command: >
+        ssh-keygen
+        -h
+        -s {{hostkeyCA.username}}
+        -I {{inventory_hostname}}
+        -n {{inventory_hostname}},{{inventory_hostname}}.{{domain}}
+        -P "{{hostkeyCA.password}}"
+        ../../tmp/{{ansible_ssh_host}}/etc/ssh/ssh_host_rsa_key.pub
+    - name: Push the signed key to the server
+      copy:
+        src=../../tmp/{{ansible_ssh_host}}/etc/ssh/ssh_host_rsa_key-cert.pub
+        dest=/etc/ssh/ssh_host_rsa_key-signed.pub
 
     - name: Clone google auth
       git: >

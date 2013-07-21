@@ -25,5 +25,7 @@ PubkeyAuthentication yes
 AuthorizedKeysFile %h/.ssh/authorized_keys
 PasswordAuthentication no
 
+HostCertificate /etc/ssh/ssh_host_rsa_key-signed.pub
+
 AllowGroups remote
 

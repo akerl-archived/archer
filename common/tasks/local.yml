@@ -4,12 +4,6 @@
   vars_files:
     - ../vars/common.yml
   tasks:
-    - name: Find old host key in known_hosts
-      shell: "awk '/{{inventory_hostname}}/ {print $NF}' ~/.ssh/known_hosts | head -n1"
-      register: old_host_key
-    - name: Remove old host key entries
-      shell: sed -i '' 's|{{old_host_key.stdout}}|{{ansible_ssh_host_key_rsa_public}}|' ~/.ssh/known_hosts
-      when: old_host_key.stdout != ansible_ssh_host_key_rsa_public and old_host_key.stdout != ''
     - name: Open two factor QR code
       command: open 'https://www.google.com/chart?chs=300x250&chld=M|0&cht=qr&chl=otpauth://totp/${inventory_hostname}?secret={{twofa.token}}'
     - name: Load GPG pubkey for node

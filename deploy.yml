@@ -42,8 +42,8 @@
         from="ansible@{{inventory_hostname}}.{{domain}}"
         subject="Deployment of {{inventory_hostname}}"
         body="Server deployment successful"
-    - name: Pause before reboot
-      pause: prompt="Press enter to reboot the server"
+#    - name: Pause before reboot
+#      pause: prompt="Press enter to reboot the server"
     - name: Schedule the reboot
       command: shutdown -r
 ...

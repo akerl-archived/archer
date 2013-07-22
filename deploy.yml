@@ -38,7 +38,7 @@
     - name: Check in any config changes
       command: /etc/cron.daily/etcsave nomail
     - name: Send completion email
-      email: >
+      mail: >
         from="ansible@{{inventory_hostname}}.{{domain}}"
         subject="Deployment of {{inventory_hostname}}"
         body="Server deployment successful"

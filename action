@@ -6,6 +6,7 @@ if [[ -z "$1" ]] ; then
     exit
 fi
 
-ansible-playbook -l $1 rebuild.yml
-ansible-playbook -l $1 deploy.yml
+ls ~/.gnupg &>/dev/null || echo 'Mount your GPG keychain now'
+
+ansible-playbook -l $1 rebuild.yml && ansible-playbook -l $1 deploy.yml
 

@@ -10,8 +10,6 @@
       connection: ssh
       command: gpg -a --export {{inventory_hostname}}
       register: node_gpgkey
-    - name: Wait for keyring to be available
-      pause: prompt='Please ensure GPG keyring is available'
     - name: Remove any old keys for this node
       shell: >
         lockfile .block ;

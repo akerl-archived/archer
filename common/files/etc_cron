@@ -3,7 +3,8 @@
 cd /etc
 git add --all
 git diff --quiet --ignore-submodules HEAD &>/dev/null && exit
-echo -e "Changes made in /etc on $(hostname):\n\n\n$(git diff --cached)" | mail -s "Etcsave Changelog" -r etcsave@$(hostname -f) magic@a-rwx.org
+[[ -z "$1" ]] && echo -e "Changes made in /etc on $(hostname):\n\n\n$(git diff --cached)" \
+    | mail -s "Etcsave Changelog" -r etcsave@$(hostname -f) magic@a-rwx.org
 git commit -q -m "Auto: $(date)" > /dev/null
 git push -q localsave master > /dev/null
 

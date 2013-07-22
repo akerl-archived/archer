@@ -35,6 +35,8 @@
 
 - hosts: cluster
   tasks:
+    - name: Check in any config changes
+      command: /etc/cron.daily/etcsave nomail
     - name: Pause before reboot
       pause: prompt="Press enter to reboot the server"
     - name: Schedule the reboot

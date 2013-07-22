@@ -31,6 +31,6 @@
     - name: Add contents of /etc to repo
       command: git add . chdir=/etc
     - name: Run first push
-      command: /etc/cron.daily/etcsave
+      command: /etc/cron.daily/etcsave nomail
 ...
 

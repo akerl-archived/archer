@@ -37,6 +37,11 @@
   tasks:
     - name: Check in any config changes
       command: /etc/cron.daily/etcsave nomail
+    - name: Send completion email
+      email: >
+        from="ansible@{{inventory_hostname}}.{{domain}}"
+        subject="Deployment of {{inventory_hostname}}"
+        body="Server deployment successful"
     - name: Pause before reboot
       pause: prompt="Press enter to reboot the server"
     - name: Schedule the reboot

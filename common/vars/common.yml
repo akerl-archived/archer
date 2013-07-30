@@ -2,8 +2,8 @@
 domain: a-rwx.org
 name: Les Aker
 gpg_key_id: '43D0048F'
-kernel_version: '3.11-rc2'
-kernel_revision: 2
+kernel_version: '3.11-rc3'
+kernel_revision: 1
 files:
   toremove:
     - /etc/skel/.bashrc

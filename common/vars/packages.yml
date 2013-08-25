@@ -18,6 +18,7 @@ packages:
         - bc
         - bison
         - bzip2
+        - cpanminus
         - cpio
         - cronie
         - curl
@@ -54,6 +55,7 @@ packages:
         - ntp
         - openssh
         - patch
+        - perl
         - procps-ng
         - psmisc
         - python

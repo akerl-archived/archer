@@ -10,6 +10,7 @@
 - include: common/tasks/users.yml
 - include: common/tasks/env.yml
 - include: common/tasks/security.yml
+- include: common/tasks/longview.yml
 - include: common/tasks/backups.yml
 - include: common/tasks/kernel.yml
 

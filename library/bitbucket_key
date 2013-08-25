@@ -46,14 +46,13 @@ def main():
         if thisKey['label'] == label:
             if thisKey['key'] != key:
                 try:
-                    requests.put(
+                    requests.delete(
                         base_url + str(thisKey['pk']),
                         auth=creds,
-                        data=data
                     ).raise_for_status()
                 except:
-                    module.fail_json(msg='failed to patch old key')
-                module.exit_json(changed=True, msg='updated old key')
+                    module.fail_json(msg='failed to remove existing key')
+                break
             else:
                 module.exit_json(changed=False, msg='key already in place')
 

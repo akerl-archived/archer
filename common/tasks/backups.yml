@@ -5,6 +5,8 @@
       file: state=directory path=/srv/save/logs/{{item}}
       with_items:
         - exim
+        - nginx
+        - uwsgi
     - name: Drop in logrotate configuration
       copy: >
         src=../files/logrotate.conf

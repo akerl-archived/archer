@@ -21,6 +21,7 @@
     command: gpg -a --export {{inventory_hostname}}
     register: node_gpgkey
 -   name: Remove any old keys for this node
+    connection: local
     shell: >
         lockfile .block ;
         while gpg --yes --no-tty --batch --delete-key admin@{{inventory_hostname}}.{{domain}} ;
@@ -28,6 +29,7 @@
         done ;
         rm -f .block
 -   name: Import new node key to keyring
+    connection: local
     shell: >
         lockfile .block ;
         echo '{{node_gpgkey.stdout}}' | gpg --import ;

@@ -2,5 +2,6 @@
 -   name: Check in any config changes
     command: /etc/cron.daily/etcsave nomail
 -   name: Schedule the reboot
-    command: 'shutdown -r +2 && true'
+    command: 'shutdown'
+    ignore_errors: yes
 ...

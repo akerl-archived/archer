@@ -1,46 +1,26 @@
 ---
-- include: common/tasks/credentials.yml
-
-- include: common/tasks/kickstart.yml
-
-- include: common/tasks/packages.yml
-- include: common/tasks/networking.yml
-- include: common/tasks/smtp.yml
-- include: common/tasks/misc.yml
-- include: common/tasks/users.yml
-- include: common/tasks/env.yml
-- include: common/tasks/security.yml
-- include: common/tasks/longview.yml
-- include: common/tasks/backups.yml
-- include: common/tasks/kernel.yml
-
-- include: common/tasks/platform.yml
-
-- include: common/tasks/local.yml
-
-- hosts: web
-  roles:
-    - web
-- hosts: dns
-  roles:
-    - dns
-- hosts: irc
-  roles:
-    - irc
-- hosts: kernel
-  roles:
-    - kernel
-- hosts: hyped
-  roles:
-    - hyped
-
-- hosts: cluster
-  tasks:
-    - name: Check in any config changes
-      command: /etc/cron.daily/etcsave nomail
-#    - name: Pause before reboot
-#      pause: prompt="Press enter to reboot the server"
-    - name: Schedule the reboot
-      command: shutdown -r
+-   hosts: cluster
+    gather_facts: no
+    roles:
+        - credentials
+        - deploy
+        - kickstart
+        - gather_facts
+        - packages
+        - networking
+        - smtp
+        - misc
+        - users
+        - env
+        - security
+        - longview
+        - backups
+        - kernel
+        - local
+        - { role: irc, when: "'irc' in group_names" }
+        - { role: dns, when: "'dns' in group_names" }
+        - { role: hyped, when: "'hyped' in group_names" }
+        - { role: web, when: "'web' in group_names" }
+        - finalize
 ...
 

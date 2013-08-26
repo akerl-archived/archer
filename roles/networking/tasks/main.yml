@@ -1,0 +1,41 @@
+---
+-   name: Generate /etc/hostname
+    template: >
+        src=hostname.j2
+        dest=/etc/hostname
+-   name: Generate /etc/hosts
+    template: >
+        src=hosts.j2
+        dest=/etc/hosts
+
+-   name: Generate netctl configuration
+    template: >
+        src=netctl.j2
+        dest=/etc/netctl/main
+-   name: Enable netctl profile
+    command: netctl enable main creates=/etc/systemd/system/multi-user.target.wants/netctl@main.service
+
+-   name: Drop in iptables rules
+    copy: >
+        src=iptables
+        dest=/etc/iptables/iptables.rules
+-   name: Drop in ip6tables rules
+    copy: >
+        src=ip6tables
+        dest=/etc/iptables/ip6tables.rules
+-   name: Enable iptables
+    service: name=iptables enabled=yes
+-   name: Enable ip6tables
+    service: name=ip6tables enabled=yes
+
+-   name: Disable DHCP
+    service: name=dhcpcd@eth0 enabled=no
+-   name: Reload networking
+    raw: >
+        systemctl stop dhcpcd@eth0 ;
+        systemctl stop netcfg ;
+        ip link set eth0 down ;
+        netctl restart main ;
+        netctl restart main
+...
+

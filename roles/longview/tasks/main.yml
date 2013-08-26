@@ -1,0 +1,44 @@
+---
+-   name: Make the required directories
+    file: state=directory path={{item}}
+    with_items:
+        - /etc/linode
+        - /opt/linode
+-   name: Clone Longview repo
+    git: >
+        repo=git://github.com/linode/longview.git
+        dest=/opt/linode/longview
+-   name: Drop in Longview key
+    template: >
+        src=longview.j2
+        dest=/etc/linode/longview.key
+-   name: Install the required packages using cpan
+    command: >
+        /bin/vendor_perl/cpanm -L /opt/linode/longview/
+        'LWP::UserAgent'
+        'Crypt::SSLeay'
+        'IO::Socket::INET6'
+        'JSON'
+        'Try::Tiny'
+        'Linux::Distribution'
+        'Log::LogLite'
+-   name: Convert the required headers
+    command: /bin/core_perl/h2ph -d /opt/linode/longview {{item}}
+    with_items:
+        - /usr/include/syscall.h
+        - /usr/include/sys/syscall.h
+        - /usr/include/asm/unistd.h
+        - /usr/include/asm/unistd_32.h
+        - /usr/include/asm/unistd_64.h
+        - /usr/include/bits/wordsize.h
+        - /usr/include/bits/syscall.h
+-   name: Add Longview service file
+    copy: >
+        src=longview.service
+        dest=/etc/systemd/system/multi-user.target.wants/longview.service
+-   name: Reload system daemons
+    command: systemctl --system daemon-reload
+-   name: Enable and start Longview
+    service: name=longview state=started
+...
+

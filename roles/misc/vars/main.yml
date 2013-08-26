@@ -1,0 +1,14 @@
+---
+files:
+  toremove:
+    - /etc/skel/.bashrc
+    - /etc/skel/.bash_logout
+    - /etc/skel/.bash_profile
+    - /etc/skel/.screenrc
+    - /etc/vconsole.conf
+    - /boot
+    - /etc/systemd/system/multi-user.target.wants/netcfg.service
+    - /etc/ppp
+    - /srv/ftp
+...
+

@@ -1,0 +1,8 @@
+---
+distro_id: 112
+kernel_id: 138
+pvgrub_id: 95
+swap_size: 256
+root_size: 20480
+...
+

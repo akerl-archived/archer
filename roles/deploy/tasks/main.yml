@@ -1,0 +1,114 @@
+---
+-   name: Issue shutdown job
+    connection: local
+    linodeapi: >
+        apikey={{linode.password}}
+        method=linode.shutdown
+        linodeid={{linode_id}}
+-   name: Grab list of config profiles
+    connection: local    
+    linodeapi: >
+        apikey={{linode.password}}
+        method=linode.config.list
+        linodeid={{linode_id}}
+    register: config_profiles
+-   name: Grab list of disk images
+    connection: local
+    linodeapi: >
+        apikey={{linode.password}}
+        method=linode.disk.list
+        linodeid={{linode_id}}
+    register: disk_images
+-   name: Delete config profiles
+    connection: local
+    linodeapi: >
+        apikey={{linode.password}}
+        method=linode.config.delete
+        linodeid={{linode_id}}
+        configid={{item.ConfigID}}
+    with_items: config_profiles.response
+-   name: Delete disk images
+    connection: local
+    linodeapi: >
+        apikey={{linode.password}}
+        method=linode.disk.delete
+        linodeid={{linode_id}}
+        diskid={{item.DISKID}}
+    with_items: disk_images.response
+-   name: Wait for jobs to complete
+    connection: local
+    linodeapi_wait: >
+        apikey={{linode.password}}
+        linodeid={{linode_id}}
+-   name: Create swap image
+    connection: local
+    linodeapi: >
+        apikey={{linode.password}}
+        method=linode.disk.create
+        linodeid={{linode_id}}
+        label=swap
+        type=swap
+        size={{swap_size}}
+    register: new_swap_image
+-   name: Create distro image
+    connection: local
+    linodeapi: >
+        apikey={{linode.password}}
+        method=linode.disk.createfromdistribution
+        linodeid={{linode_id}}
+        label={{inventory_hostname}}
+        distributionid={{distro_id}}
+        size={{root_size}}
+        rootpass="{{lookup('pipe', '/usr/local/brew/bin/pwgen -snc 30 1')}}"
+        rootsshkey="{{lookup('file','~/.ssh/id_rsa.pub')}}"
+    register: new_distro_image
+-   name: Create config profile
+    connection: local
+    linodeapi: >
+        apikey={{linode.password}}
+        method='linode.config.create'
+        linodeid={{linode_id}}
+        label={{inventory_hostname}}
+        kernelid={{kernel_id}}
+        disklist='{{new_distro_image.response.DiskID}},{{new_swap_image.response.DiskID}},,,,,,,'
+    register: new_config_profile
+-   name: Boot the system
+    connection: local
+    linodeapi: >
+        apikey={{linode.password}}
+        method=linode.boot
+        linodeid={{linode_id}}
+        configid={{new_config_profile.response.ConfigID}}
+-   name: Wait for the boot job
+    connection: local
+    linodeapi_wait:
+        apikey={{linode.password}}
+        linodeid={{linode_id}}
+-   name: Wait for the Linode to be up
+    connection: local
+    wait_for: >
+        host={{ansible_ssh_host}}
+        port=22
+        timeout=3000
+-   name: Get configuration profiles
+    connection: local
+    linodeapi: >
+        apikey={{linode.password}}
+        method=linode.config.list
+        linodeid={{linode_id}}
+    register: new_config_profiles
+-   name: Disable helpers and switch to pv-grub
+    connection: local
+    linodeapi: >
+        apikey={{linode.password}}
+        method=linode.config.update
+        linodeid={{linode_id}}
+        configid={{item.ConfigID}}
+        helper_disableUpdateDB=0
+        devtmpfs_automount=0
+        helper_xen=0
+        helper_depmod=0
+        kernelid={{pvgrub_id}}
+    with_items: new_config_profiles.response
+...
+

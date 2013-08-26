@@ -3,31 +3,18 @@ miro    ansible_ssh_host=69.164.217.166
 grego   ansible_ssh_host=50.116.33.15
 olhado  ansible_ssh_host=173.255.193.119
 
-[linodes]
-miro
-grego
-olhado
-
-[xen]
-miro
-grego
-olhado
-
 [dns]
-olhado
-
-[web]
 olhado
 
 [irc]
 miro
 grego
 
-[kernel]
-grego
-
 [hyped]
 miro
+
+[web]
+olhado
 
 [all:vars]
 ansible_python_interpreter="/usr/bin/env python2"

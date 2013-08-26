@@ -1,0 +1,32 @@
+---
+-   name: Create local QR code image
+    connection: local
+    command: >
+        qrencode
+        "otpauth://totp/{{inventory_hostname}}?secret={{twofa.token}}"
+        -s 10
+        -o /tmp/{{inventory_hostname}}.2fa.png
+-   name: Open QR code
+    connection: local
+    shell: open /tmp/{{inventory_hostname}}.2fa.png ; sleep 3
+-   name: Delete QR code
+    connection: local
+    command: rm -f /tmp/{{inventory_hostname}}.2fa.png
+
+-   name: Load GPG pubkey for node
+    command: gpg -a --export {{inventory_hostname}}
+    register: node_gpgkey
+-   name: Remove any old keys for this node
+    shell: >
+        lockfile .block ;
+        while gpg --yes --no-tty --batch --delete-key admin@{{inventory_hostname}}.{{domain}} ;
+            do echo -n ;
+        done ;
+        rm -f .block
+-   name: Import new node key to keyring
+    shell: >
+        lockfile .block ;
+        echo '{{node_gpgkey.stdout}}' | gpg --import ;
+        rm -f .block
+...
+

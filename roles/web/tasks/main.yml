@@ -1,0 +1,17 @@
+---
+- name: Install nginx
+  pacman: state=present name=nginx
+- name: Punch iptables hole for ports 80 and 443
+  iptables: >
+    rule='-p tcp --dport {{item}} -j ACCEPT'
+  with_items:
+    - 80
+    - 443
+- name: Punch ip6tables hole for ports 80 and 443
+  iptables: >
+    rule='-p tcp --dport {{item}} -j ACCEPT'
+  with_items:
+    - 80
+    - 443
+...
+

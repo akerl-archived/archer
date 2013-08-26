@@ -1,0 +1,65 @@
+---
+-   name: Setting timezone
+    command: timedatectl set-timezone US/Eastern
+-   name: Enable UTF-8
+    lineinfile: dest=/etc/locale.gen line='en_US.UTF-8 UTF-8' regexp='#?en_US.UTF-8 UTF-8'
+-   name: Regenerate locales
+    command: locale-gen
+-   name: Drop in locale.conf
+    copy: src=locale.conf dest=/etc/locale.conf
+
+-   name: Updating BitBucket deploy keys
+    bitbucket_key: >
+        username={{bitbucket.username}}
+        password={{bitbucket.password}}
+        repo=privdotfiles
+        source={{item}}
+    with_items:
+        - /root/.ssh/id_rsa.pub
+        - /home/{{admin.username}}/.ssh/id_rsa.pub
+
+-   name: Clone dotdotdot for root
+    git: >
+        dest='/root/...'
+        repo='git://github.com/ingydotnet/....git'
+-   name: Clone dotdotdot for admin (hacky)
+    command: 'su - {{admin.username}} -c "git clone git://github.com/ingydotnet/....git /home/{{admin.username}}/..."'
+-   name: Drop in dotdotdot config for root
+    copy: >
+        src=dotdotdot.conf
+        dest='/root/.../conf'
+-   name: Drop in dotdotdot config for admin
+    copy: >
+        src=dotdotdot.conf
+        dest='/home/{{admin.username}}/.../conf'
+        owner={{admin.username}}
+        group={{admin.username}}
+-   name: Update dotfiles for root
+    command: /root/.../... update creates=/root/.../src/dotfiles
+-   name: Install dotfiles for root
+    command: /root/.../... install creates=/root/.zshrc
+-   name: Update dotfiles for admin (hacky)
+    command: 'su - {{admin.username}} -c "/home/{{admin.username}}/.../... update"'
+-   name: Install dotfiles for admin (hacky)
+    command: 'su - {{admin.username}} -c "/home/{{admin.username}}/.../... install"'
+
+-   name: Clone scripts
+    git: >
+        dest=/opt/scripts
+        repo='git://github.com/akerl/scripts.git'
+-   name: Link scripts into path
+    command: /opt/scripts/scriptRefresh /opt/scripts
+
+-   name: Cloning packer
+    git: >
+        dest=/opt/packer
+        repo='git://github.com/keenerd/packer.git'
+-   name: Set mode for packer
+    file: path=/opt/packer/packer mode=0755
+-   name: Link packer into path
+    file: >
+        state=link
+        path=/usr/local/bin/packer
+        src=/opt/packer/packer
+...
+

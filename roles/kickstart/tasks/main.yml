@@ -1,0 +1,13 @@
+---
+-   name: Start haveged for entropy
+    raw: 'while [ -z "$(pgrep haveged)" ] ; do haveged ; sleep 1 ; done'
+-   name: Generate keys
+    raw: pacman-key --init
+-   name: Load archlinux keys
+    raw: pacman-key --populate archlinux
+-   name: Disable SyncFirst for pacman
+    raw: "sed -i 's/^\\(SyncFirst.*\\)/#\\1/' /etc/pacman.conf"
+-   name: Install python2 and git for Ansible
+    raw: pacman -Syy --noconfirm --needed python2 python2-pip git
+...
+

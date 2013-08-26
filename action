@@ -1,12 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ -z "$1" ]] ; then
-    echo "Please provide a hostname:"
-    cat hosts | awk '/^[a-z]+\s?$/ {print $1}' | sort | uniq
-    exit
-fi
+ls ~/.gnupg &>/dev/null || ( echo 'Mount your GPG keychain before running!' && exit 1 )
 
-ls ~/.gnupg &>/dev/null || echo 'Mount your GPG keychain now'
-
-ansible-playbook -l $1 rebuild.yml && ansible-playbook -l $1 deploy.yml
+ansible-playbook -l $1 deploy.yml
 

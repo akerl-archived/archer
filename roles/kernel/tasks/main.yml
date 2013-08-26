@@ -1,5 +1,17 @@
 ---
-- name: Update kernel config repo to have read/write remote
-  command: 'git remote set-url origin git@github.com:akerl/kernels.git chdir=/opt/roller/configs'
+-   name: Clone roller
+    git: >
+        dest=/opt/roller
+        repo='git://github.com/akerl/roller.git'
+-   name: Clone kernel configs
+    git: >
+        dest=/opt/roller/configs
+        repo='git://github.com/akerl/kernels.git'
+-   name: Roll the kernel
+    command: /opt/roller/roller.py -k {{kernel_version}} -c {{kernel_version}} -r {{kernel_revision}}
+-   name: Clean up kernel archives
+    command: /opt/roller/cleanup.py
+-   name: Update kernel config repo to have read/write remote
+    command: 'git remote set-url origin git@github.com:akerl/kernels.git chdir=/opt/roller/configs'
 ...
 

@@ -21,6 +21,6 @@
         - { role: dns, when: "'dns' in group_names" }
         - { role: hyped, when: "'hyped' in group_names" }
         - { role: web, when: "'web' in group_names" }
-        - finalize
+        - { role: finalize, when: True }
 ...
 

@@ -8,7 +8,11 @@
         -o /tmp/{{inventory_hostname}}.2fa.png
 -   name: Open QR code
     connection: local
-    shell: open /tmp/{{inventory_hostname}}.2fa.png ; sleep 3
+    shell: >
+        lockfile .block ;
+        open /tmp/{{inventory_hostname}}.2fa.png ;
+        sleep 3 ;
+        rm -f .block
 -   name: Delete QR code
     connection: local
     command: rm -f /tmp/{{inventory_hostname}}.2fa.png

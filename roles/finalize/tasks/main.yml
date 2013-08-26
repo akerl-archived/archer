@@ -1,8 +1,6 @@
 ---
 -   name: Check in any config changes
     command: /etc/cron.daily/etcsave nomail
-    tags: test
 -   name: Schedule the reboot
     command: shutdown -r +2
-    tags: test
 ...

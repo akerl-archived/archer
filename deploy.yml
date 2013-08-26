@@ -2,7 +2,6 @@
 -   hosts: all
     gather_facts: no
     roles:
-        - credentials
         - deploy
         - kickstart
         - gather_facts

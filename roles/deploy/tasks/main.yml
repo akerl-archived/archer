@@ -1,4 +1,8 @@
 ---
+-   name: Get Linode API key
+    connection: local
+    keychain: keychain={{keychain}} service=linode-api
+    register: linode
 -   name: Issue shutdown job
     connection: local
     linodeapi: >

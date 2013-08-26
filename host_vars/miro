@@ -9,6 +9,5 @@ v6addr:
     - '2600:3c03:e001:0800::9001/56'
 v6gw: 'fe80::1'
 linode_id: 76789
-longview_key: 275EC896-9A0B-C033-B9553F587EBDF358
 ...
 

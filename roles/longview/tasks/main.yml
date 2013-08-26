@@ -8,10 +8,17 @@
     git: >
         repo=git://github.com/linode/longview.git
         dest=/opt/linode/longview
+
+
+-   name: Get Longview key
+    connection: local
+    keychain: keychain={{keychain}} service=longview-{{inventory_hostname}}
+    register: longview_key
 -   name: Drop in Longview key
     template: >
         src=longview.j2
         dest=/etc/linode/longview.key
+
 -   name: Install the required packages using cpan
     command: >
         /bin/vendor_perl/cpanm -L /opt/linode/longview/
@@ -32,6 +39,7 @@
         - /usr/include/asm/unistd_64.h
         - /usr/include/bits/wordsize.h
         - /usr/include/bits/syscall.h
+
 -   name: Add Longview service file
     copy: >
         src=longview.service

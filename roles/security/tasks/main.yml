@@ -19,6 +19,10 @@
         src=/etc/ssh/ssh_host_rsa_key.pub
         dest=/tmp/ansible
         fail_on_missing=yes
+-   name: Get host key CA location and passphrase
+    connection: local
+    keychain: keychain={{keychain}} service=host-key-CA
+    register: hostkeyCA
 -   name: Sign the host key
     connection: local
     command: >

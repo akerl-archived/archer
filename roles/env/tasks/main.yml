@@ -14,6 +14,10 @@
         regexp='^gem: --(no-)?user-install$'
         line='gem: --no-user-install'
 
+-   name: Get BitBucket user and password
+    connection: local
+    keychain: keychain={{keychain}} service=bitbucket
+    register: bitbucket
 -   name: Updating BitBucket deploy keys
     bitbucket_key: >
         username={{bitbucket.username}}

@@ -19,4 +19,5 @@ olhado
 ansible_python_interpreter="/usr/bin/env python2"
 domain='a-rwx.org'
 name='Les Aker'
+keychain='/Volumes/akerl-vault/archer'
 

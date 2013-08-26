@@ -4,6 +4,16 @@
 
 -   name: Add remote group
     group: state=present name=remote
+
+-   name: Get root password
+    connection: local
+    keychain: keychain={{keychain}} service=root crypt=sha512
+    register: root
+-   name: Get admin user and password
+    connection: local
+    keychain: keychain={{keychain}} service=admin crypt=sha512
+    register: admin
+
 -   name: Adjust root user
     user: >
         name=root

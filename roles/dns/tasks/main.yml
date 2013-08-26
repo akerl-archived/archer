@@ -1,4 +1,8 @@
 ---
+-   name: Get GitHub user and password
+    connection: local
+    keychain: keychain={{keychain}} service=github
+    register: github
 -   name: Update deploy key for DNS repo
     github_key: >
         username={{github.username}}

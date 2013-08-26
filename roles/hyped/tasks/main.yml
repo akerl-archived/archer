@@ -1,34 +1,27 @@
 ---
-- name: Install ruby
-  pacman: state=present name=ruby
-- name: Adjust /etc/gemrc
-  lineinfile: >
-    dest=/etc/gemrc
-    regexp='^gem: --(no-)?user-install$'
-    line='gem: --no-user-install'
-- name: Install gems
-  gem: state=present name={{item}}
-  with_items:
-    - curb
-    - nokogiri
-    - json
-    - ruby-mp3info
-- name: Create admin-owned repo path
-  file: >
-    path=/opt/get-hyped
-    state=directory
-    owner={{admin.username}}
-    group={{admin.username}}
-- name: Clone get-hyped
-  git: >
-    repo='git://github.com/akerl/get-hyped'
-    dest=/opt/get-hyped
-- name: Add cron job for get-hyped
-  cron: >
-    name=hyped
-    job='ruby /opt/get-hyped/get-hyped.rb -d /opt/get-hyped/music -l /home/{{admin.username}}/.hyped >/dev/null'
-    cron_file=hyped
-    minute=15
-    user={{admin.username}}
+-   name: Install gems
+    gem: state=present name={{item}}
+    with_items:
+        - curb
+        - nokogiri
+        - json
+        - ruby-mp3info
+-   name: Create admin-owned repo path
+    file: >
+        path=/opt/get-hyped
+        state=directory
+        owner={{admin.username}}
+        group={{admin.username}}
+-   name: Clone get-hyped
+    git: >
+        repo='git://github.com/akerl/get-hyped'
+        dest=/opt/get-hyped
+-   name: Add cron job for get-hyped
+    cron: >
+        name=hyped
+        job='ruby /opt/get-hyped/get-hyped.rb -d /opt/get-hyped/music -l /home/{{admin.username}}/.hyped >/dev/null'
+        cron_file=hyped
+        minute=15
+        user={{admin.username}}
 ...
 

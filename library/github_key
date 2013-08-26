@@ -33,9 +33,7 @@ def main():
         module.fail_json(msg='creds not accepted')
 
     with open(os.path.expanduser(source)) as handle:
-        contents = handle.readlines()[0].rsplit(None, 1)
-    key = contents[0]
-    title = contents[1]
+        key, title = handle.readlines()[0].rsplit(None, 1)
     new_key = json.dumps({'title': title, 'key': key})
 
     if len(repo):

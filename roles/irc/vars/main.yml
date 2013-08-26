@@ -1,4 +1,5 @@
 ---
 certificate_string: 'US\nNJ\nLinodia\n\nLes Aker\nme@lesaker.org\n'
+irc_log_dir: /Users/akerl/Code/irclogs
 ...
 

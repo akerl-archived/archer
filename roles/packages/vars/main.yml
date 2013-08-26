@@ -67,6 +67,7 @@ packages:
         - python2-pip
         - python2-virtualenv
         - rsync
+        - ruby
         - screen
         - sed
         - sqlite

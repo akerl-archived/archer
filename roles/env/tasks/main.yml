@@ -8,6 +8,12 @@
 -   name: Drop in locale.conf
     copy: src=locale.conf dest=/etc/locale.conf
 
+-   name: Adjust /etc/gemrc
+    lineinfile: >
+        dest=/etc/gemrc
+        regexp='^gem: --(no-)?user-install$'
+        line='gem: --no-user-install'
+
 -   name: Updating BitBucket deploy keys
     bitbucket_key: >
         username={{bitbucket.username}}

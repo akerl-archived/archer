@@ -30,24 +30,22 @@ def main():
         module.fail_json(msg='creds not accepted')
 
     with open(os.path.expanduser(module.params['source'])) as handle:
-        contents = handle.readlines()[0].rsplit(None, 1)
-    key = contents[0]
-    label = contents[1]
+        key, label = handle.readlines()[0].rsplit(None, 1)
     data = urllib.urlencode({'key': key, 'label': label})
 
     try:
-        keyRequest = requests.get(base_url, auth=creds)
-        keyRequest.raise_for_status()
-        currentKeys = keyRequest.json()
+        key_request = requests.get(base_url, auth=creds)
+        key_request.raise_for_status()
+        current_keys = key_request.json()
     except:
         module.fail_json(msg='failed to get current keys')
 
-    for thisKey in currentKeys:
-        if thisKey['label'] == label:
-            if thisKey['key'] != key:
+    for current_key in current_keys:
+        if current_key['label'] == label:
+            if current_key['key'] != key:
                 try:
                     requests.delete(
-                        base_url + str(thisKey['pk']),
+                        base_url + str(current_key['pk']),
                         auth=creds,
                     ).raise_for_status()
                 except:

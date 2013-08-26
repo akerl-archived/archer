@@ -15,13 +15,6 @@
         src=pacman.conf
         dest=/etc/pacman.conf
 
--   name: Check for package upgrades
-    shell: pacman -Syyup --print-format "%n" | awk '/^[^:][^ ]*$/'
-    register: updates
--   name: Upgrade packages
-    pacman: state=present name={{item}}
-    with_items: updates.stdout_lines
-    ignore_errors: yes
 -   name: Upgrade system
     pacman: update=yes
 -   name: Remove specified packages

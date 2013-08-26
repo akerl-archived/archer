@@ -5,24 +5,38 @@ keyid="${args[0]}"
 passphrase="${args[1]}"
 
 function imported() { 
-  local result="$(gpg --list-key $keyid | wc -l)"
-  [ "$result" == "0" ] && return 1
-  return 0
+    local result="$(gpg --list-key $keyid | wc -l)"
+    [ "$result" == "0" ] && return 1
+    return 0
 } 
 function signed() {
-  local result="$(gpg --check-sigs $keyid | grep '^sig' | grep -v "$keyid" | grep -v "User ID not found" | wc -l)"
-  [ "$result" == "0" ] && return 1
-  return 0
+    local result="$(gpg --check-sigs $keyid \
+            | grep '^sig' \
+            | grep -v "$keyid" \
+            | grep -v "User ID not found" \
+            | wc -l)"
+    [ "$result" == "0" ] && return 1
+    return 0
 }
 function import() {
-  gpg --recv-key $keyid &>/dev/null
+    gpg --recv-key $keyid &>/dev/null
 }
 function sign() {
-  echo -e "Y\n$passphrase\n" | gpg --command-fd 0 --no-tty --lsign-key $keyid &> /dev/null
+    echo -e "Y\n$passphrase\n" | gpg --command-fd 0 --no-tty --lsign-key $keyid &> /dev/null
 }
 
-imported && signed && echo "changed=False msg='key already imported and signed' keyid=$keyid passphrase=$passphrase" && exit
-import ; sign
-imported && signed && echo "changed=True msg='key imported and signed'" && exit
+imported \
+    && signed \
+    && echo "changed=False msg='key already imported and signed' keyid=$keyid passphrase=$passphrase" \
+    && exit
+
+import
+sign
+
+imported \
+    && signed \
+    && echo "changed=True msg='key imported and signed'" \
+    && exit
+
 echo "failed=True msg='failed to import and sign key'"
 

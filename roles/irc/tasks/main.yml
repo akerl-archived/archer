@@ -11,6 +11,8 @@
 -   name: Copy current log repo to remote
     connection: local
     command: rsync -r {{irc_log_dir}} {{admin.username}}@{{inventory_hostname}}:/srv/irclogs/
+-   name: Remove remote from log repo
+    command: git remote rm origin chdir=/srv/irclogs
 -   name: Add cronjob for irc logs
     cron: >
         name=irclogs

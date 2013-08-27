@@ -10,17 +10,11 @@
         group={{admin.username}}
 -   name: Copy current log repo to remote
     connection: local
-    shell: >
-        scp
-        -oStrictHostKeyChecking=no
-        -oUserKnownHostsFile=/dev/null
-        -r
-        {{irc_log_dir}}/*
-        {{admin.username}}@{{inventory_hostname}}:/srv/irclogs/
+    command: rsync -r {{irc_log_dir}} {{admin.username}}@{{inventory_hostname}}:/srv/irclogs/
 -   name: Add cronjob for irc logs
     cron: >
         name=irclogs
-        job='(cd /srv/irclogs ; git add --all ; git commit -m "$(date)" ; git push origin master ; cd) &>/dev/null'
+        job='(cd /srv/irclogs ; git add --all ; git commit -m "$(date)" ; cd) &>/dev/null'
         cron_file=irclogs
         minute=0
         hour=0

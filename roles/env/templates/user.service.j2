@@ -1,0 +1,14 @@
+[Unit]
+Description=User autoloaded functions
+
+[Service]
+User={{admin.username}}
+Type=oneshot
+RemainAfterExit=yes
+
+ExecStart=/home/{{admin.username}}/.init start
+ExecStop=/home/{{admin.username}}/.init stop
+
+[Install]
+WantedBy=multi-user.target
+

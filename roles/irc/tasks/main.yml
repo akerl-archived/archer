@@ -1,10 +1,7 @@
 ---
 -   name: Install weechat
     pacman: state=present name=weechat
--   name: Generate client SSL certificate
-    shell: >
-        su - {{admin.username}}
-        -c 'echo "{{certificate_string}}" | openssl req -nodes -newkey rsa:2048 -keyout ~/.weechat/ssl/client.pem -x509 -days 3650 -out ~/.weechat/ssl/client.pem'
+
 -   name: Make log directory
     file: >
         state=directory
@@ -13,7 +10,13 @@
         group={{admin.username}}
 -   name: Copy current log repo to remote
     connection: local
-    command: scp -r {{irc_log_dir}} {{admin.username}}@{{ansible_ssh_host}}:/srv/irclogs
+    shell: >
+        scp
+        -oStrictHostKeyChecking=no
+        -oUserKnownHostsFile=/dev/null
+        -r
+        {{irc_log_dir}}/*
+        {{admin.username}}@{{inventory_hostname}}:/srv/irclogs/
 -   name: Add cronjob for irc logs
     cron: >
         name=irclogs
@@ -23,5 +26,41 @@
         hour=0
         day='*/2'
         user={{admin.username}}
+
+-   name: Generate client SSL certificate
+    shell: >
+        su - {{admin.username}}
+        -c 'echo "{{certificate_string}}" | openssl req -nodes -newkey rsa:2048 -keyout ~/.weechat/ssl/client.pem -x509 -days 3650 -out ~/.weechat/ssl/client.pem'
+
+-   name: Start weechat for certificate updating
+    command: su - {{admin.username}} -c "tmux new-session -d -s irc 'weechat-curses -a'"
+-   name: Connect to all networks
+    shell: echo "*/connect -all -nojoin" > /home/{{admin.username}}/.weechat/weechat_fifo_*
+-   name: Delay to allow servers to connect
+    pause: seconds=5
+
+-   name: Load OFTC credentials
+    connection: local
+    keychain: keychain={{keychain}} service=oftc
+    register: oftc
+-   name: Load Freenode credentials
+    connection: local
+    keychain: keychain={{keychain}} service=freenode
+    register: freenode
+
+-   name: Generate command list
+    template: >
+        src=cert_update.j2
+        dest=/tmp/cert_update
+-   name: Execute commands
+    shell: cat /tmp/cert_update > /home/{{admin.username}}/.weechat/weechat_fifo_*
+-   name: Remove command list
+    file: state=absent path=/tmp/cert_update
+
+-   name: Delay to allow NickServ to handle certificate updates
+    pause: seconds=5
+-   name: Stop weechat
+    command: su - {{admin.username}} -c 'tmux kill-session'
+
 ...
 

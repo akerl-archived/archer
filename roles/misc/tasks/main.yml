@@ -12,7 +12,7 @@
     template: src=fstab.j2 dest=/etc/fstab
 
 -   name: Enable haveged
-    service: name=haveged state=started enabled=yes
+    service: name=haveged enabled=yes
 -   name: Enable syslog-ng
     service: name=syslog-ng state=started enabled=yes
 -   name: Enable cronie

@@ -71,5 +71,10 @@
         state=link
         path=/usr/local/bin/packer
         src=/opt/packer/packer
+
+-   name: Drop in user systemd service
+    template: >
+        src=user.service.j2
+        dest=/etc/systemd/system/multi-user.target.wants/user.service
 ...
 

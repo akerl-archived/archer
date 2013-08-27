@@ -35,7 +35,7 @@
 -   name: Start weechat for certificate updating
     command: su - {{admin.username}} -c "tmux new-session -d -s irc 'weechat-curses -a'"
 -   name: Connect to all networks
-    shell: echo "*/connect -all -nojoin" > /home/{{admin.username}}/.weechat/weechat_fifo_*
+    shell: sleep 3; echo "*/connect -all -nojoin" > /home/{{admin.username}}/.weechat/weechat_fifo_$(pgrep weechat)
 -   name: Delay to allow servers to connect
     pause: seconds=5
 
@@ -53,7 +53,7 @@
         src=cert_update.j2
         dest=/tmp/cert_update
 -   name: Execute commands
-    shell: cat /tmp/cert_update > /home/{{admin.username}}/.weechat/weechat_fifo_*
+    shell: cat /tmp/cert_update > /home/{{admin.username}}/.weechat/weechat_fifo_$(pgrep weechat)
 -   name: Remove command list
     file: state=absent path=/tmp/cert_update
 

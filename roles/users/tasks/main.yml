@@ -13,7 +13,6 @@
     connection: local
     keychain: keychain={{keychain}} service=admin crypt=sha512
     register: admin
-
 -   name: Adjust root user
     user: >
         name=root

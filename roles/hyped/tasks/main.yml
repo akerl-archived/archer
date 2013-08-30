@@ -19,7 +19,7 @@
 -   name: Add cron job for get-hyped
     cron: >
         name=hyped
-        job='ruby /opt/get-hyped/get-hyped.rb -d /opt/get-hyped/music -l /home/{{admin.username}}/.hyped >/dev/null'
+        job='ruby /opt/get-hyped/get-hyped.rb -d /opt/get-hyped/music -l /home/{{admin.username}}/.hyped &>/dev/null'
         cron_file=hyped
         minute=15
         user={{admin.username}}

@@ -5,4 +5,5 @@ auth        required    pam_unix.so
 auth        required    pam_google_authenticator.so secret=~/.2fa
 account     required    pam_unix.so
 session     required    pam_unix.so
+session     optional    pam_exec.so /opt/scripts/auth_mail
 

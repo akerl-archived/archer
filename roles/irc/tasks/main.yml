@@ -58,7 +58,7 @@
     file: state=absent path=/tmp/cert_update
 
 -   name: Delay to allow NickServ to handle certificate updates
-    pause: seconds=5
+    command: sleep 5
 -   name: Stop weechat
     command: su - {{admin.username}} -c 'tmux kill-session'
 

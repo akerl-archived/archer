@@ -47,6 +47,6 @@
 -   name: Reload system daemons
     command: systemctl --system daemon-reload
 -   name: Enable and start Longview
-    service: name=longview state=started
+    service: name=longview action=restart
 ...
 

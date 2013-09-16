@@ -33,7 +33,6 @@
 -   name: Reload networking
     raw: >
         systemctl stop dhcpcd@eth0 ;
-        systemctl stop netcfg ;
         ip link set eth0 down ;
         netctl restart main ;
         netctl restart main

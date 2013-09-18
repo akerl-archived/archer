@@ -1,0 +1,71 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+import sh
+
+def getStatus(module, name):
+  statusLines = [ x.strip().rstrip() for x in sh.systemctl.status(name, _ok_code=[0,3]).stdout.split('\n') ]
+  if statusLines[1].find('error') != -1:
+    module.fail_json(msg='received error when checking service status')
+
+  if statusLines[1].find('enabled') != -1:
+    enabled = True
+  else:
+    enabled = False
+
+  if statusLines[2].find('inactive') != -1:
+    running = False
+  elif statusLines[2].find('active') != -1:
+    running = True
+  elif statusLines[2].find('failed') != -1:
+    running = False
+
+  return ( running, enabled )
+
+def toggleSetting(module, name, setting):
+  if setting:
+    cmd = 'enable'
+  else:
+    cmd = 'disable'
+  sh.systemctl(cmd, name)
+
+def toggleState(module, name, setting):
+  sh.systemctl(setting, name)
+
+def main():
+    module = AnsibleModule(
+        argument_spec = dict(
+            name = dict(required=True),
+            action = dict(default=None, choices=['start', 'stop', 'restart', 'reload']),
+            enabled = dict(default=None, choices=['yes', 'no']),
+        )
+    )
+
+    name = module.params['name']
+    desiredState = module.params['action']
+    desiredSetting = module.params['enabled']
+
+    ( isRunning, isEnabled ) = getStatus(module, name)
+
+    changed = False
+
+    if desiredSetting is not None and isEnabled != module.boolean(desiredSetting):
+      toggleSetting(module, name, module.boolean(desiredSetting))
+      changed = True
+    if desiredState in ['restart', 'reload']:
+      toggleState(module, name, desiredState)
+      changed = True
+    elif desiredState == 'start' and not isRunning or desiredState == 'stop' and isRunning:
+      toggleState(module, name, desiredState)
+      changed = True 
+
+    if changed:
+      module.exit_json(changed=True, msg='made requested modifications')
+    else:
+      module.exit_json(changed=False, msg='no modifications required')
+
+# this is magic, see lib/ansible/module_common.py
+#<<INCLUDE_ANSIBLE_MODULE_COMMON>>
+
+main()
+

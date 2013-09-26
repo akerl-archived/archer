@@ -8,7 +8,7 @@
         dest=/opt/keys
         repo='git://github.com/akerl/keys.git'
 -   name: Populate admin keys
-    command: 'su - {{admin.username}} -c "keysRefresh /opt/keys /home/{{admin.username}}/.ssh/authorized_keys quiet'
+    command: 'su - {{admin.username}} -c "keysRefresh /opt/keys /home/{{admin.username}}/.ssh/authorized_keys quiet"'
 -   name: Fetch host SSH key
     fetch: >
         src=/etc/ssh/ssh_host_rsa_key.pub

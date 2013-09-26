@@ -53,6 +53,11 @@
 -   name: Install dotfiles for admin (hacky)
     command: 'su - {{admin.username}} -c "/home/{{admin.username}}/.../... install"'
 
+-   name: Install vundle scripts for root (hackier)
+    command: tmux new-session -d -s vundle 'vim -E -c BundleInstall -c qall'
+-   name: Install Vundle scripts for admin (hacky)
+    command: su - {{admin.username}} -c "tmux new-session -d -s vundle 'vim -E -c BundleInstall -c qall'"
+
 -   name: Clone scripts
     git: >
         dest=/opt/scripts

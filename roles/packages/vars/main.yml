@@ -22,6 +22,7 @@ packages:
         - cpio
         - cronie
         - curl
+        - ctags
         - dnsutils
         - e2fsprogs
         - exim

@@ -14,11 +14,11 @@
 -   name: Enable haveged
     service: name=haveged enabled=yes
 -   name: Enable syslog-ng
-    service: name=syslog-ng state=started enabled=yes
+    service: name=syslog-ng action=restart enabled=yes
 -   name: Enable cronie
-    service: name=cronie state=started enabled=yes
+    service: name=cronie action=restart enabled=yes
 -   name: Enable NTPd
-    service: name=ntpd state=started enabled=yes
+    service: name=ntpd action=restart enabled=yes
 -   name: Disable getty
     service: name=getty@tty1.service enabled=no
 

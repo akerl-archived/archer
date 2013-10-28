@@ -10,7 +10,11 @@
         group={{admin.username}}
 -   name: Copy current log repo to remote
     connection: local
-    command: rsync -r {{irc_log_dir}} {{admin.username}}@{{inventory_hostname}}:/srv/irclogs/
+    command: >
+        rsync 
+        -e "ssh -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no"
+        -r {{irc_log_dir}}
+        {{admin.username}}@{{inventory_hostname}}:/srv/irclogs/
 -   name: Remove remote from log repo
     command: git remote rm origin chdir=/srv/irclogs
 -   name: Add cronjob for irc logs
@@ -54,7 +58,7 @@
     file: state=absent path=/tmp/cert_update
 
 -   name: Delay to allow NickServ to handle certificate updates
-    pause: seconds=5
+    command: sleep 5
 -   name: Stop weechat
     command: su - {{admin.username}} -c 'tmux kill-session'
 

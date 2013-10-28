@@ -22,6 +22,7 @@ packages:
         - cpio
         - cronie
         - curl
+        - ctags
         - dnsutils
         - e2fsprogs
         - exim
@@ -34,7 +35,6 @@ packages:
         - grep
         - gzip
         - haveged
-        - heirloom-mailx
         - htop
         - inetutils
         - iotop
@@ -70,6 +70,7 @@ packages:
         - ruby
         - screen
         - sed
+        - s-nail
         - sqlite
         - strace
         - sudo

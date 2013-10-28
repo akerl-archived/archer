@@ -21,6 +21,6 @@
         regexp='^[\s#]*root:'
         line='root: admin@${domain}'
 -   name: Enable and start exim
-    service: name=exim state=restarted enabled=yes
+    service: name=exim action=restart enabled=yes
 ...
 

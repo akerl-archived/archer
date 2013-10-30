@@ -24,7 +24,7 @@
 
 -   name: Remove specified files
     file: state=absent path=$item
-    with_items: ${files.toremove}
+    with_items: files.toremove
 -   name: Recreate /boot/grub
     file: state=directory path=/boot/grub
 ...

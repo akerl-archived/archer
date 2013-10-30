@@ -1,7 +1,7 @@
 ---
 -   name: Install python2 modules
     pip: >
-        name=$item
+        name={{item}}
         state=latest
         pip=pip2
     with_items: modules.python2

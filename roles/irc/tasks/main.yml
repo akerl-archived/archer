@@ -12,7 +12,7 @@
     connection: local
     command: >
         rsync 
-        -e "ssh -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no"
+        -e "ssh -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no -oControlMaster=no"
         -r {{irc_log_dir}}
         {{admin.username}}@{{inventory_hostname}}:/srv/irclogs/
 -   name: Remove remote from log repo

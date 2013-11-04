@@ -19,10 +19,10 @@
         state=link
         path=/etc/nsd/nsd.conf
         src=/opt/dns/nsd.conf
--   name: Build initial NSD db
-    command: nsdc rebuild
--   name: Enable and start NSD
-    service: name=nsd action=restart enabled=yes
+-   name: Enable NSD
+    service: name=nsd enabled=yes
+-   name: Set up nsd-control
+    command: nsd-control-setup
 -   name: Punch iptables holes for port 53
     iptables: >
         rule='-p {{item}} --dport 53 -j ACCEPT'

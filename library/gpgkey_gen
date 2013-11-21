@@ -23,7 +23,7 @@ import base64
 
 key_template = '''Key-Type: RSA
 Key-Length: {length}
-Key-Usage: encrypt
+Key-Usage: encrypt,sign
 Passphrase: {passphrase}
 Name-Real: {name}
 Name-Comment: {comment}

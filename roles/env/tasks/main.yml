@@ -63,7 +63,7 @@
         dest=/opt/scripts
         repo='git://github.com/akerl/scripts.git'
 -   name: Link scripts into path
-    command: /opt/scripts/scriptRefresh /opt/scripts
+    command: /opt/scripts/script_sync /opt/scripts
 
 -   name: Cloning packer
     git: >

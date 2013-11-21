@@ -50,18 +50,18 @@
         src=2fa.j2
         dest=/root/.2fa
         mode=0600
--   name: Drop in su PAM config
+-   name: Drop in sudo PAM config
     copy: >
-        src=su
-        dest=/etc/pam.d/su
--   name: Drop in su-l PAM config
-    copy: >
-        src=su
-        dest=/etc/pam.d/su-l
+        src=sudo
+        dest=/etc/pam.d/sudo
 -   name: Drop in system-auth PAM config
     copy: >
         src=system-auth
         dest=/etc/pam.d/system-auth
+-   name: Update /etc/securetty
+    copy: >
+      src=securetty
+      dest=/etc/securetty
 
 -   name: Install fwknop
     command: >

@@ -1,0 +1,6 @@
+#%PAM-1.0
+auth        required    pam_unix.so
+auth        required    pam_nologin.so
+auth        required    pam_google_authenticator.so secret=/root/.2fa user=0
+auth        optional    pam_exec.so /opt/scripts/auth_mail
+

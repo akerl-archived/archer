@@ -6,11 +6,13 @@ chown root:root /srv/save/logs/*
 chmod 644 /srv/save/logs/*
 
 if [ -d /tmp/maillogs ] ; then
-  today=$(date +%Y%m%d)
-  cd /tmp/maillogs/
-    tar -czf /tmp/$(hostname)-$today.tar.gz *
-  cd
-  echo "Have some logs" | mail -s "Logs for $today" -r logs@$(hostname -f) -a /tmp/$(hostname)-$today.tar.gz magic@a-rwx.org
-  rm -r /tmp/maillogs /tmp/$(hostname)-$today.tar.gz
+    today=$(date +%Y%m%d)
+    (cd /tmp/maillogs/ ; tar -czf /tmp/$(hostname)-$today.tar.gz *)
+    cat /etc/logpull.key | gpg --batch --passphrase-fd 0 --sign /tmp/$(hostname)-$today.tar.gz
+    echo "Have some logs" | mail -s "Logs for $today" -r logs@$(hostname -f) -a /tmp/$(hostname)-$today.tar.gz.gpg magic@a-rwx.org
+    if [ "$?" == "0" ] ; then
+        rm /tmp/$(hostname)-$today.tar.gz
+    fi
+    rm -r /tmp/maillogs /tmp/$(hostname)-$today.tar.gz.gpg
 fi
 

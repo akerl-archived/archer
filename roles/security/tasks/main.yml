@@ -90,6 +90,11 @@
         email=admin@{{inventory_hostname}}.{{domain}}
         replaceOld=yes
     register: new_key
+-   name: Stash passphrase
+    template: >
+      src=gpg.j2
+      dest=/etc/logpull.key
+      mode=0600
 -   name: Trust admin key
     gpgkey_sign: '{{gpg_key_id}} {{new_key.passphrase}}'
 

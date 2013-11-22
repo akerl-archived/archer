@@ -1,0 +1,17 @@
+---
+-   name: Remove any old keys for this node
+    connection: local
+    shell: >
+        lockfile .block ;
+        while gpg --homedir {{homedir}} --yes --no-tty --batch --delete-key admin@{{inventory_hostname}}.{{domain}} ;
+            do echo -n ;
+        done ;
+        rm -f .block
+-   name: Import new node key to keyring
+    connection: local
+    shell: >
+        lockfile .block ;
+        echo '{{node_gpgkey.stdout}}' | gpg --homedir {{homedir}} --import ;
+        rm -f .block
+...
+

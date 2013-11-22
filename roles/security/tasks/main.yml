@@ -58,6 +58,10 @@
     copy: >
         src=system-auth
         dest=/etc/pam.d/system-auth
+-   name: Drop in sudoers settings
+    copy: >
+      src=sudoers
+      dest=/etc/sudoers.d/wheel
 -   name: Update /etc/securetty
     copy: >
       src=securetty

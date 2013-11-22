@@ -1,6 +1,6 @@
 ---
 -   name: Install gems
-    gem: state=present name={{item}}
+    gem: state=present user_install=no name={{item}}
     with_items:
         - curb
         - nokogiri

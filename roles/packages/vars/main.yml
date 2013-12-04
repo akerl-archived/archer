@@ -44,6 +44,7 @@ packages:
         - jshon
         - less
         - logrotate
+        - lockfile-progs
         - lsof
         - lvm2
         - m4

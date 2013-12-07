@@ -24,6 +24,7 @@ packages:
         - curl
         - ctags
         - dnsutils
+        - docker
         - e2fsprogs
         - exim
         - findutils

@@ -13,6 +13,7 @@
         - env
         - security
         - longview
+        - docker
         - backups
         - kernel
         - local

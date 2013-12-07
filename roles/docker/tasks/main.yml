@@ -1,0 +1,7 @@
+---
+-   name: Enable IPv4 forwarding
+    sysctl: name=net.ipv4.ip_forward value=1 sysctl_file=/etc/sysctl.d/docker.conf
+-   name: Enable Docker
+    service: name=docker enabled=yes
+...
+

@@ -1,5 +1,5 @@
 ---
-kernel_version: '3.12.2'
+kernel_version: '3.13-rc3'
 kernel_revision: 1
 ...
 

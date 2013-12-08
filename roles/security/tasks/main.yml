@@ -102,11 +102,10 @@
     template: >
         src=fwknop.j2
         dest=/etc/fwknop/access.conf
--   name: Switch fwknop capture port
-    lineinfile: >
+-   name: Copy fwknop configuration file
+    copy: >
+        src=fwknopd.conf
         dest=/etc/fwknop/fwknopd.conf
-        regexp='#*PCAP_FILTER\s*udp\s*port\s*\d+\s*;'
-        line='PCAP_FILTER udp port 465;'
 -   name: Enable fwknop
     service: name=fwknopd enabled=yes
 ...

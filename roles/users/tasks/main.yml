@@ -26,7 +26,7 @@
         name={{admin.username}}
         password={{admin.password}}
         generate_ssh_key=yes
-        ssh_key_bits=8096
+        ssh_key_bits=8192
         ssh_key_comment={{admin.username}}@{{inventory_hostname}}
         groups='wheel,remote'
         shell=/usr/bin/zsh

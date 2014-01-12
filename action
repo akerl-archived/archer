@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
 
-ls ~/.gnupg/ &>/dev/null || echo 'Mount your GPG keychain before running!'
-
 ansible-playbook -l $1 deploy.yml
 

@@ -20,7 +20,7 @@
 -   name: Load GPG pubkey for node
     command: gpg -a --export {{inventory_hostname}}
     register: node_gpgkey
--   include: import_gpg.yml homedir='~/.gnupg'
+-   include: import_gpg.yml homedir='~/.fwknop.gpg'
 -   include: import_gpg.yml homedir='~/Code/logpull/gnupg'
 ...
 
